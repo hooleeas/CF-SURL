@@ -167,6 +167,26 @@ async function adminUpdateLink(env, oldKey, newKey, newUrl) {
   }
 }
 
+// ================= 管理后台路径 =================
+const DEFAULT_ADMIN_PATH = "admin";
+
+function normalizeAdminPath(value) {
+  const path = String(value ?? "").trim();
+  if (!path) return DEFAULT_ADMIN_PATH;
+  if (path.length > 64) throw new Error("管理员后台路径最长 64 个字符");
+  if (!/^[A-Za-z0-9_-]+$/.test(path)) {
+    throw new Error("管理员后台路径只能使用字母、数字、下划线和短横线，且不要输入 / ");
+  }
+  if (["api", "config"].includes(path.toLowerCase())) {
+    throw new Error("管理员后台路径不能使用系统保留字");
+  }
+  return path;
+}
+
+function getAdminBasePath(adminPath) {
+  return `/${normalizeAdminPath(adminPath)}`;
+}
+
 // ================= 安全与登录逻辑 =================
 function getCookie(request, name) {
   const cookie = request.headers.get('Cookie') || '';
@@ -193,7 +213,7 @@ async function isAdminLoggedIn(request, user, pass) {
   return session ? getCookie(request, 'CF_SHORT_ADMIN') === session : false;
 }
 
-async function handleAdminLogin(request, user, pass) {
+async function handleAdminLogin(request, user, pass, adminPath = DEFAULT_ADMIN_PATH) {
   let inputUser = '';
   let inputPass = '';
   try {
@@ -201,7 +221,7 @@ async function handleAdminLogin(request, user, pass) {
     inputUser = String(form.get('username') || '');
     inputPass = String(form.get('password') || '');
   } catch (e) {
-    return new Response(renderLoginPage('登录请求格式不正确'), { status: 400, headers: htmlHeaders });
+    return new Response(renderLoginPage('登录请求格式不正确', adminPath), { status: 400, headers: htmlHeaders });
   }
   if (inputUser === user && inputPass === pass) {
     const session = await getAdminSessionValue(user, pass);
@@ -209,13 +229,13 @@ async function handleAdminLogin(request, user, pass) {
     return new Response('', {
       status: 302,
       headers: {
-        'Location': '/admin',
+        'Location': getAdminBasePath(adminPath),
         'Set-Cookie': `CF_SHORT_ADMIN=${encodeURIComponent(session)}; Max-Age=604800; Path=/; HttpOnly; SameSite=Lax${secure}`,
         'Cache-Control': 'no-store'
       }
     });
   }
-  return new Response(renderLoginPage('用户名或密码错误'), { status: 401, headers: htmlHeaders });
+  return new Response(renderLoginPage('用户名或密码错误', adminPath), { status: 401, headers: htmlHeaders });
 }
 
 // ================= UI 渲染模块 =================
@@ -428,7 +448,7 @@ async function copyToClipboard() {
 </html>`;
 }
 
-function renderAdmin(adminUser) {
+function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -447,6 +467,10 @@ function renderAdmin(adminUser) {
     <div class="field">
       <label>后台登录账号 (USER)</label>
       <input type="text" id="sec-user" value="${escapeHTML(adminUser)}" placeholder="留空则无密码直接进入">
+    </div>
+    <div class="field">
+      <label>管理员后台路径</label>
+      <input type="text" id="sec-admin-path" value="${escapeHTML(adminPath)}" maxlength="64" placeholder="例如：admin-panel">
     </div>
     <div class="field">
       <label>后台登录密码 (PASS)</label>
@@ -534,22 +558,36 @@ function openSecurityModal() { document.getElementById('sec-pass').value = ''; d
 function closeSecurityModal() { document.getElementById('securityModal').style.display = 'none'; document.getElementById('sec-pass').value = ''; document.getElementById('sec-pass-confirm').value = ''; }
 async function saveSecurity() {
   const user = document.getElementById('sec-user').value.trim();
+  const adminPath = document.getElementById('sec-admin-path').value.trim();
   const pass = document.getElementById('sec-pass').value;
   const confirmPass = document.getElementById('sec-pass-confirm').value;
+
+  if (!adminPath) return showToast("管理员后台路径不能为空");
+  if (!/^[A-Za-z0-9_-]+$/.test(adminPath)) return showToast("后台路径只能使用字母、数字、下划线和短横线，且不要输入 / ");
+  if (adminPath.length > 64) return showToast("后台路径最长 64 个字符");
+  if (adminPath.toLowerCase() === 'api' || adminPath.toLowerCase() === 'config') return showToast("后台路径不能使用系统保留字");
   if (!pass || !confirmPass) return showToast("请将密码输入两次");
   if (pass !== confirmPass) return showToast("两次输入的密码不一致");
+
   try {
-    const res = await fetch("/admin/api/config", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user, pass, confirm_pass: confirmPass }) });
+    const currentBase = '/' + ${JSON.stringify(adminPath)};
+    const res = await fetch(currentBase + "/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user, pass, confirm_pass: confirmPass, admin_path: adminPath })
+    });
     const data = await res.json();
     if (!res.ok) return showToast(data.error || "设置保存失败");
+
     closeSecurityModal();
-    showToast("安全设置已保存");
-    setTimeout(() => logoutAdmin(), 500);
-  } catch(e) { showToast("网络错误"); }
+    window.location.replace('/');
+  } catch(e) {
+    showToast("网络错误");
+  }
 }
 
 async function logoutAdmin() {
-  try { await fetch('/admin/logout', { method: 'POST', credentials: 'same-origin' }); } catch(e) {}
+  try { await fetch('/' + ${JSON.stringify(adminPath)} + '/logout', { method: 'POST', credentials: 'same-origin' }); } catch(e) {}
   window.location.replace('/');
 }
 
@@ -557,7 +595,7 @@ async function logoutAdmin() {
 async function loadLinks() {
   const tbody = document.getElementById("linkList");
   try {
-    const res = await fetch("/admin/api/links", { credentials: "same-origin", cache: "no-store" });
+    const res = await fetch("${getAdminBasePath(adminPath)}/api/links", { credentials: "same-origin", cache: "no-store" });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "加载失败");
     tbody.innerHTML = "";
@@ -603,7 +641,7 @@ async function createLink() {
   if (!url) return showToast("请输入目标 URL");
   
   try {
-    const res = await fetch("/admin/api/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, url }) });
+    const res = await fetch("${getAdminBasePath(adminPath)}/api/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, url }) });
     const data = await res.json();
     if (!res.ok) return showToast(data.error || "添加失败");
     document.getElementById("addKey").value = ""; document.getElementById("addUrl").value = "";
@@ -638,7 +676,7 @@ async function saveEdit() {
   const newUrl = input.value.trim();
   if (!newKey || !newUrl) return showToast("Key 或 URL 不能为空");
   try {
-    const res = await fetch("/admin/api/update", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ oldKey: editingOldKey, key: newKey, url: newUrl }) });
+    const res = await fetch("${getAdminBasePath(adminPath)}/api/update", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ oldKey: editingOldKey, key: newKey, url: newUrl }) });
     const data = await res.json();
     if (!res.ok) return showToast(data.error || "修改失败");
     closeEditModal(); showToast("修改成功"); loadLinks();
@@ -648,7 +686,7 @@ async function saveEdit() {
 async function deleteLink(key) {
   if (!confirm(\`确定要删除 Key 为「\${key}」的短链接吗？\`)) return;
   try {
-    const res = await fetch("/admin/api/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key }) });
+    const res = await fetch("${getAdminBasePath(adminPath)}/api/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key }) });
     const data = await res.json();
     if (!res.ok) return showToast(data.error || "删除失败");
     showToast("删除成功"); loadLinks();
@@ -666,7 +704,7 @@ loadLinks();
 </html>`;
 }
 
-function renderLoginPage(error = '') {
+function renderLoginPage(error = '', adminPath = DEFAULT_ADMIN_PATH) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -680,7 +718,7 @@ function renderLoginPage(error = '') {
 <section class="panel" style="padding:40px 30px; text-align:center;">
   <h1 class="title" style="margin-bottom:10px;">控制台登录</h1>
   <div class="subtitle" style="margin-bottom:30px;">请验证管理员身份</div>
-  <form method="POST" action="/admin/login" style="text-align:left;">
+  <form method="POST" action="${getAdminBasePath(adminPath)}/login" style="text-align:left;">
     <div class="field"><label>用户名</label><input name="username" type="text" required autofocus></div>
     <div class="field"><label>密码</label><input name="password" type="password" required></div>
     <button type="submit" style="width:100%; margin-top:14px;">安全登录</button>
@@ -732,9 +770,17 @@ export default {
     } catch (e) {}
     const adminUser = kvConfig.user !== undefined ? kvConfig.user : (env.USER || '');
     const adminPass = kvConfig.pass !== undefined ? kvConfig.pass : (env.PASS || '');
+    let adminPath = DEFAULT_ADMIN_PATH;
+    try {
+      adminPath = normalizeAdminPath(kvConfig.admin_path);
+    } catch (e) {
+      adminPath = DEFAULT_ADMIN_PATH;
+    }
+    const adminBasePath = getAdminBasePath(adminPath);
+    const adminApiPath = `${adminBasePath}/api`;
 
     // === 后台路由与鉴权拦截 ===
-    if (path.startsWith("/admin")) {
+    if (path === adminBasePath || path.startsWith(adminBasePath + '/')) {
       
       // 如果设置了密码，执行鉴权
       if (isAdminLoginEnabled(adminUser, adminPass)) {
@@ -742,18 +788,18 @@ export default {
         
         // 未登录处理
         if (!isLoggedIn) {
-          if (request.method === 'POST' && path === '/admin/login') {
-            return await handleAdminLogin(request, adminUser, adminPass);
+          if (request.method === 'POST' && path === `${adminBasePath}/login`) {
+            return await handleAdminLogin(request, adminUser, adminPass, adminPath);
           }
-          if (path.startsWith('/admin/api')) {
+          if (path === adminApiPath || path.startsWith(adminApiPath + '/')) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: jsonHeaders });
           }
-          return new Response(renderLoginPage(), { headers: htmlHeaders });
+          return new Response(renderLoginPage('', adminPath), { headers: htmlHeaders });
         }
       }
       
       // 安全退出
-      if (path === '/admin/logout') {
+      if (path === `${adminBasePath}/logout`) {
         if (request.method !== 'POST') {
           return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: jsonHeaders });
         }
@@ -765,41 +811,52 @@ export default {
       }
 
       // 后台首页
-      if (request.method === "GET" && path === "/admin") {
-        return new Response(renderAdmin(adminUser), { headers: htmlHeaders });
+      if (request.method === "GET" && path === adminBasePath) {
+        return new Response(renderAdmin(adminUser, adminPath), { headers: htmlHeaders });
       }
 
       // API 接口
-      if (path.startsWith("/admin/api")) {
+      if (path === adminApiPath || path.startsWith(adminApiPath + '/')) {
         try {
           // 保存账户设置
-          if (request.method === "POST" && path === "/admin/api/config") {
+          if (request.method === "POST" && path === `${adminApiPath}/config`) {
             const req = await request.json();
             
             // 密码留空时保持原密码
             const newUser = typeof req.user === 'string' ? req.user.trim() : '';
             const newPass = typeof req.pass === 'string' ? req.pass : '';
             const confirmPass = typeof req.confirm_pass === 'string' ? req.confirm_pass : '';
+            const newAdminPath = normalizeAdminPath(req.admin_path);
             if (!newPass || !confirmPass) throw new Error("密码必须输入两次");
             if (newPass !== confirmPass) throw new Error("两次输入的密码不一致");
-            await env.KV.put('CONFIG.json', JSON.stringify({ user: newUser, pass: newPass }));
-            return new Response(JSON.stringify({ status: 200, message: "设置已保存" }), { headers: jsonHeaders });
+            let oldConfig = {};
+            try {
+              const oldConfigStr = await env.KV.get('CONFIG.json');
+              if (oldConfigStr) oldConfig = JSON.parse(oldConfigStr);
+            } catch (e) {}
+            await env.KV.put('CONFIG.json', JSON.stringify({
+              ...oldConfig,
+              user: newUser,
+              pass: newPass,
+              admin_path: newAdminPath
+            }));
+            return new Response(JSON.stringify({ status: 200, message: "设置已保存", admin_path: newAdminPath }), { headers: jsonHeaders });
           }
           
-          if (request.method === "GET" && path === "/admin/api/links") {
+          if (request.method === "GET" && path === `${adminApiPath}/links`) {
             return new Response(JSON.stringify({ status: 200, links: await adminListLinks(env) }), { headers: jsonHeaders });
           }
           if (request.method === "POST") {
             const req = await request.json();
-            if (path === "/admin/api/create") {
+            if (path === `${adminApiPath}/create`) {
               await adminCreateLink(env, req.key, req.url);
               return new Response(JSON.stringify({ status: 200, message: "添加成功" }), { headers: jsonHeaders });
             }
-            if (path === "/admin/api/update") {
+            if (path === `${adminApiPath}/update`) {
               await adminUpdateLink(env, req.oldKey, req.key, req.url);
               return new Response(JSON.stringify({ status: 200, message: "修改成功" }), { headers: jsonHeaders });
             }
-            if (path === "/admin/api/delete") {
+            if (path === `${adminApiPath}/delete`) {
               await adminDeleteLink(env, req.key);
               return new Response(JSON.stringify({ status: 200, message: "删除成功" }), { headers: jsonHeaders });
             }
