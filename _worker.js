@@ -469,10 +469,6 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
       <input type="text" id="sec-user" value="${escapeHTML(adminUser)}" placeholder="留空则无密码直接进入">
     </div>
     <div class="field">
-      <label>管理员后台路径</label>
-      <input type="text" id="sec-admin-path" value="${escapeHTML(adminPath)}" maxlength="64" placeholder="例如：admin-panel">
-    </div>
-    <div class="field">
       <label>后台登录密码 (PASS)</label>
       <input type="password" id="sec-pass" placeholder="输入新密码">
     </div>
@@ -483,6 +479,22 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
     <div class="modal-actions">
       <button class="secondary" onclick="closeSecurityModal()">取消</button>
       <button onclick="saveSecurity()">保存修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- 管理员后台路径设置模态框 -->
+<div class="modal-overlay" id="adminPathModal">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <h2 class="section-title" style="font-size:20px;">🔗 管理员后台路径</h2>
+    <div class="field">
+      <label>自定义后台路径</label>
+      <input type="text" id="admin-path-input" value="${escapeHTML(adminPath)}" maxlength="64" placeholder="例如：admin-panel">
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;">只填写路径名称，不要输入 /，例如：admin、admin-panel</div>
+    </div>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeAdminPathModal()">取消</button>
+      <button onclick="saveAdminPath()">保存修改</button>
     </div>
   </div>
 </div>
@@ -517,6 +529,7 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
     </div>
     <div style="display:flex; gap:8px;">
       <button class="secondary" onclick="openSecurityModal()">🛡️ 安全</button>
+      <button class="secondary" onclick="openAdminPathModal()">🔗 后台路径</button>
       <button class="danger" onclick="logoutAdmin()">🚪 退出</button>
     </div>
   </header>
@@ -554,32 +567,66 @@ ${renderScripts()}
 let editingOldKey = "";
 
 // ==== 安全设置逻辑 ====
-function openSecurityModal() { document.getElementById('sec-pass').value = ''; document.getElementById('sec-pass-confirm').value = ''; document.getElementById('securityModal').style.display = 'flex'; }
-function closeSecurityModal() { document.getElementById('securityModal').style.display = 'none'; document.getElementById('sec-pass').value = ''; document.getElementById('sec-pass-confirm').value = ''; }
+function openSecurityModal() {
+  document.getElementById('sec-pass').value = '';
+  document.getElementById('sec-pass-confirm').value = '';
+  document.getElementById('securityModal').style.display = 'flex';
+}
+function closeSecurityModal() {
+  document.getElementById('securityModal').style.display = 'none';
+  document.getElementById('sec-pass').value = '';
+  document.getElementById('sec-pass-confirm').value = '';
+}
 async function saveSecurity() {
   const user = document.getElementById('sec-user').value.trim();
-  const adminPath = document.getElementById('sec-admin-path').value.trim();
   const pass = document.getElementById('sec-pass').value;
   const confirmPass = document.getElementById('sec-pass-confirm').value;
 
-  if (!adminPath) return showToast("管理员后台路径不能为空");
-  if (!/^[A-Za-z0-9_-]+$/.test(adminPath)) return showToast("后台路径只能使用字母、数字、下划线和短横线，且不要输入 / ");
-  if (adminPath.length > 64) return showToast("后台路径最长 64 个字符");
-  if (adminPath.toLowerCase() === 'api' || adminPath.toLowerCase() === 'config') return showToast("后台路径不能使用系统保留字");
   if (!pass || !confirmPass) return showToast("请将密码输入两次");
   if (pass !== confirmPass) return showToast("两次输入的密码不一致");
 
   try {
-    const currentBase = '/' + ${JSON.stringify(adminPath)};
-    const res = await fetch(currentBase + "/api/config", {
+    const res = await fetch("${getAdminBasePath(adminPath)}/api/config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user, pass, confirm_pass: confirmPass, admin_path: adminPath })
+      body: JSON.stringify({ user, pass, confirm_pass: confirmPass })
     });
     const data = await res.json();
     if (!res.ok) return showToast(data.error || "设置保存失败");
 
     closeSecurityModal();
+    window.location.replace('/');
+  } catch(e) {
+    showToast("网络错误");
+  }
+}
+
+// ==== 管理员后台路径设置逻辑 ====
+function openAdminPathModal() {
+  document.getElementById('admin-path-input').value = ${JSON.stringify(adminPath)};
+  document.getElementById('adminPathModal').style.display = 'flex';
+}
+function closeAdminPathModal() {
+  document.getElementById('adminPathModal').style.display = 'none';
+}
+async function saveAdminPath() {
+  const adminPathValue = document.getElementById('admin-path-input').value.trim();
+
+  if (!adminPathValue) return showToast("管理员后台路径不能为空");
+  if (!/^[A-Za-z0-9_-]+$/.test(adminPathValue)) return showToast("后台路径只能使用字母、数字、下划线和短横线，且不要输入 / ");
+  if (adminPathValue.length > 64) return showToast("后台路径最长 64 个字符");
+  if (adminPathValue.toLowerCase() === 'api' || adminPathValue.toLowerCase() === 'config') return showToast("后台路径不能使用系统保留字");
+
+  try {
+    const res = await fetch("${getAdminBasePath(adminPath)}/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ admin_path: adminPathValue })
+    });
+    const data = await res.json();
+    if (!res.ok) return showToast(data.error || "后台路径保存失败");
+
+    closeAdminPathModal();
     window.location.replace('/');
   } catch(e) {
     showToast("网络错误");
@@ -695,8 +742,9 @@ async function deleteLink(key) {
 
 document.getElementById('editModal').addEventListener('click', closeEditModal);
 document.getElementById('securityModal').addEventListener('click', closeSecurityModal);
+document.getElementById('adminPathModal').addEventListener('click', closeAdminPathModal);
 document.addEventListener('keydown', e => { 
-  if (e.key === 'Escape') { closeEditModal(); closeSecurityModal(); }
+  if (e.key === 'Escape') { closeEditModal(); closeSecurityModal(); closeAdminPathModal(); }
 });
 loadLinks();
 </script>
@@ -818,22 +866,35 @@ export default {
       // API 接口
       if (path === adminApiPath || path.startsWith(adminApiPath + '/')) {
         try {
-          // 保存账户设置
+          // 保存账户设置 / 管理员后台路径
           if (request.method === "POST" && path === `${adminApiPath}/config`) {
             const req = await request.json();
-            
-            // 密码留空时保持原密码
-            const newUser = typeof req.user === 'string' ? req.user.trim() : '';
-            const newPass = typeof req.pass === 'string' ? req.pass : '';
-            const confirmPass = typeof req.confirm_pass === 'string' ? req.confirm_pass : '';
-            const newAdminPath = normalizeAdminPath(req.admin_path);
-            if (!newPass || !confirmPass) throw new Error("密码必须输入两次");
-            if (newPass !== confirmPass) throw new Error("两次输入的密码不一致");
             let oldConfig = {};
             try {
               const oldConfigStr = await env.KV.get('CONFIG.json');
               if (oldConfigStr) oldConfig = JSON.parse(oldConfigStr);
             } catch (e) {}
+
+            // 独立保存管理员后台路径
+            if (typeof req.admin_path === 'string' && !('user' in req) && !('pass' in req) && !('confirm_pass' in req)) {
+              const newAdminPath = normalizeAdminPath(req.admin_path);
+              await env.KV.put('CONFIG.json', JSON.stringify({
+                ...oldConfig,
+                admin_path: newAdminPath
+              }));
+              return new Response(JSON.stringify({ status: 200, message: "后台路径已保存", admin_path: newAdminPath }), { headers: jsonHeaders });
+            }
+
+            // 保存账户用户名和密码，未提交后台路径时保持原值
+            const newUser = typeof req.user === 'string' ? req.user.trim() : '';
+            const newPass = typeof req.pass === 'string' ? req.pass : '';
+            const confirmPass = typeof req.confirm_pass === 'string' ? req.confirm_pass : '';
+            if (!newPass || !confirmPass) throw new Error("密码必须输入两次");
+            if (newPass !== confirmPass) throw new Error("两次输入的密码不一致");
+            const newAdminPath = typeof req.admin_path === 'string'
+              ? normalizeAdminPath(req.admin_path)
+              : normalizeAdminPath(oldConfig.admin_path);
+
             await env.KV.put('CONFIG.json', JSON.stringify({
               ...oldConfig,
               user: newUser,
