@@ -262,16 +262,16 @@ function getToolStyles() {
   return `
     :root{
       --bg:#f4f7f5;
-      --card:rgba(255,255,255,.86);
-      --card-solid:#fff;
+      --shell:rgba(255,255,255,.76);
+      --card:rgba(255,255,255,.88);
       --text:#17211b;
-      --muted:#6f7b74;
-      --line:rgba(35,65,48,.10);
+      --muted:#728078;
+      --line:rgba(27,61,43,.11);
       --green:#16a36a;
       --green-dark:#087a4b;
-      --green-soft:rgba(22,163,106,.10);
+      --green-soft:rgba(22,163,106,.08);
       --danger:#d84a4a;
-      --shadow:0 18px 55px rgba(22,55,39,.09);
+      --shadow:0 18px 55px rgba(22,55,39,.08);
       --radius:22px;
     }
     *{box-sizing:border-box}
@@ -279,48 +279,53 @@ function getToolStyles() {
     body{
       margin:0;min-height:100vh;color:var(--text);
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      background:
-        radial-gradient(circle at 10% 0%,rgba(66,211,146,.16),transparent 30%),
-        radial-gradient(circle at 95% 10%,rgba(35,177,117,.11),transparent 28%),
-        var(--bg);
+      background:var(--bg);
       font-size:14px;line-height:1.55;
     }
     a{color:inherit}
     button,input{font:inherit}
     button{
-      min-height:42px;padding:9px 17px;border:1px solid #168e5d;border-radius:12px;
+      min-height:42px;padding:9px 17px;border:1px solid #159260;border-radius:11px;
       background:linear-gradient(135deg,#18aa70,#0f8b59);color:#fff;font-weight:650;
-      cursor:pointer;transition:.2s ease;box-shadow:0 6px 18px rgba(16,143,91,.16);
+      cursor:pointer;transition:.18s ease;box-shadow:0 5px 16px rgba(16,143,91,.13);
     }
-    button:hover{transform:translateY(-1px);box-shadow:0 9px 24px rgba(16,143,91,.22)}
-    button:active{transform:translateY(0)}
-    button:disabled{opacity:.55;cursor:default;transform:none;box-shadow:none}
+    button:hover{filter:brightness(.97);box-shadow:0 7px 20px rgba(16,143,91,.18)}
+    button:active{transform:translateY(1px)}
+    button:disabled{opacity:.55;cursor:default;box-shadow:none}
     button.secondary{
-      background:rgba(255,255,255,.72);color:#26332c;border-color:rgba(40,74,57,.16);
-      box-shadow:none
+      background:rgba(255,255,255,.7);color:var(--text);border-color:var(--line);box-shadow:none
     }
-    button.secondary:hover{background:#fff;border-color:rgba(22,163,106,.35)}
-    button.danger{background:linear-gradient(135deg,#e55a5a,#cc3f46);border-color:#cc3f46}
-    .page{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:34px 0 48px}
-    .narrow{width:min(560px,calc(100% - 28px))}
-    .header{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:22px}
-    .brand{display:flex;align-items:center;gap:13px;min-width:0}
-    .brand-logo{width:44px;height:44px;border-radius:14px;object-fit:cover;flex:0 0 44px;box-shadow:0 10px 25px rgba(16,143,91,.18);border:1px solid rgba(22,163,106,.12);background:#fff}
-    .admin-shell{padding:26px;border-radius:28px;background:rgba(255,255,255,.42);border:1px solid rgba(35,65,48,.09);box-shadow:0 24px 70px rgba(22,55,39,.08);backdrop-filter:blur(22px)}
-    .inner-card{background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 28px rgba(22,55,39,.045)}
-    .inner-card + .inner-card{margin-top:14px}
-    .admin-shell .stats{margin-bottom:14px}
-    .admin-shell .stat{background:rgba(255,255,255,.68)}
-    .site-logo-preview{display:flex;align-items:center;gap:12px;margin-top:10px;padding:10px 12px;border:1px dashed rgba(22,163,106,.22);border-radius:13px;background:rgba(22,163,106,.04);min-height:62px}
-    .site-logo-preview img{width:42px;height:42px;object-fit:cover;border-radius:11px}
-    .site-logo-preview span{font-size:12px;color:var(--muted);word-break:break-all}
+    button.secondary:hover{background:var(--card);border-color:rgba(22,163,106,.32)}
+    button.danger{background:#d84a4a;border-color:#d84a4a;box-shadow:none}
+    button.danger:hover{background:#c83e43}
+    .page{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:34px 0 46px}
+    .narrow{width:min(620px,calc(100% - 28px))}
+    .admin-shell{
+      background:var(--shell);border:1px solid var(--line);border-radius:26px;
+      padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(18px)
+    }
+    .admin-header{
+      display:flex;justify-content:space-between;align-items:center;gap:18px;
+      padding:4px 2px 22px;border-bottom:1px solid var(--line);margin-bottom:18px
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .brand-logo{
+      width:42px;height:42px;border-radius:12px;object-fit:cover;flex:0 0 42px;
+      border:1px solid var(--line);background:#fff
+    }
     .brand-text{min-width:0}
     .title{margin:0;font-size:28px;line-height:1.2;font-weight:760;letter-spacing:-.5px}
-    .subtitle{margin-top:7px;color:var(--muted);font-size:13px}
+    .subtitle{margin-top:6px;color:var(--muted);font-size:13px}
+    .header-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .panel{
-      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-      padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(18px);margin-bottom:18px
+      background:var(--card);border:1px solid var(--line);border-radius:20px;
+      padding:22px;box-shadow:0 8px 28px rgba(22,55,39,.045);backdrop-filter:blur(14px)
     }
+    .inner-card{
+      background:var(--card);border:1px solid var(--line);border-radius:20px;
+      padding:20px;box-shadow:0 8px 28px rgba(22,55,39,.045)
+    }
+    .inner-card + .inner-card{margin-top:14px}
     .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
     .section-title{margin:0;font-size:17px;font-weight:720}
     .section-desc{margin:4px 0 0;color:var(--muted);font-size:13px}
@@ -328,81 +333,77 @@ function getToolStyles() {
     label{display:block;margin-bottom:7px;font-weight:650;font-size:13px}
     input{
       width:100%;height:46px;padding:10px 14px;border:1px solid rgba(37,72,54,.14);
-      border-radius:13px;background:rgba(255,255,255,.76);color:var(--text);outline:none;
-      transition:.2s ease
+      border-radius:12px;background:rgba(255,255,255,.76);color:var(--text);outline:none;transition:.18s ease
     }
-    input:focus{border-color:rgba(22,163,106,.65);box-shadow:0 0 0 4px rgba(22,163,106,.10);background:#fff}
+    input:focus{border-color:rgba(22,163,106,.62);box-shadow:0 0 0 4px rgba(22,163,106,.09);background:#fff}
+    .home-input{height:54px;border-radius:14px;font-size:16px}
     .form-grid{display:grid;grid-template-columns:220px 1fr auto;gap:12px;align-items:end}
     .form-grid .field{margin:0}
     .hint{color:var(--muted);font-size:12px;margin-top:6px}
     .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
     .toolbar .search{flex:1;min-width:220px}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
     .stat{
-      padding:17px 18px;border:1px solid var(--line);border-radius:18px;
-      background:rgba(255,255,255,.62)
+      padding:16px 17px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.55)
     }
     .stat-label{color:var(--muted);font-size:12px}
-    .stat-value{font-size:25px;font-weight:760;margin-top:4px;letter-spacing:-.5px}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}
-    table{width:100%;border-collapse:collapse;min-width:720px;background:rgba(255,255,255,.34)}
-    th,td{padding:14px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
-    th{font-size:12px;color:var(--muted);font-weight:680;white-space:nowrap;background:rgba(248,250,249,.7)}
+    .stat-value{font-size:24px;font-weight:760;margin-top:3px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:15px}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:rgba(255,255,255,.25)}
+    th,td{padding:13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+    th{font-size:12px;color:var(--muted);font-weight:680;white-space:nowrap;background:rgba(248,250,249,.68)}
     tbody tr:last-child td{border-bottom:0}
-    tbody tr:hover{background:rgba(22,163,106,.035)}
+    tbody tr:hover{background:rgba(22,163,106,.025)}
     .key-cell{font-weight:700;white-space:nowrap}
     .url-cell{max-width:420px;word-break:break-all}
-    .url-link{color:#087f51;text-decoration:none}
+    .url-link{color:var(--green-dark);text-decoration:none}
     .url-link:hover{text-decoration:underline}
     .actions{display:flex;justify-content:flex-end;gap:7px;white-space:nowrap}
-    .actions button{min-height:36px;padding:7px 12px;font-size:13px}
+    .actions button{min-height:35px;padding:6px 11px;font-size:13px}
     .check{width:17px;height:17px;accent-color:var(--green)}
     .empty{text-align:center;color:var(--muted);padding:38px 20px}
     .bulkbar{
-      display:none;align-items:center;justify-content:space-between;gap:12px;
-      margin-top:12px;padding:11px 13px;border:1px solid rgba(22,163,106,.15);
-      border-radius:14px;background:var(--green-soft)
+      display:none;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;
+      padding:11px 13px;border:1px solid rgba(22,163,106,.14);border-radius:13px;background:var(--green-soft)
     }
     .bulkbar.show{display:flex}
     .bulkbar-info{font-size:13px;font-weight:650}
     .modal-overlay{
-      position:fixed;inset:0;display:none;align-items:center;justify-content:center;
-      padding:18px;background:rgba(9,22,15,.28);backdrop-filter:blur(12px);z-index:1000
+      position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:18px;
+      background:rgba(9,22,15,.28);backdrop-filter:blur(12px);z-index:1000
     }
     .modal-content{
-      width:min(500px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.7);
-      border-radius:24px;padding:25px;box-shadow:0 28px 80px rgba(10,35,22,.22)
+      width:min(500px,100%);background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.72);
+      border-radius:22px;padding:24px;box-shadow:0 28px 80px rgba(10,35,22,.22)
     }
     .modal-title-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
     .modal-close{
-      width:36px;height:36px;min-height:36px;padding:0;border-radius:11px;background:rgba(30,50,40,.06);
+      width:34px;height:34px;min-height:34px;padding:0;border-radius:10px;background:rgba(30,50,40,.06);
       color:#516057;border:0;box-shadow:none;font-size:20px
     }
     .modal-close:hover{background:rgba(30,50,40,.11);box-shadow:none}
     .modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
     .result-box{
-      display:none;margin-top:17px;padding:17px;border-radius:17px;
-      background:linear-gradient(135deg,rgba(37,198,128,.10),rgba(22,163,106,.04));
-      border:1px solid rgba(22,163,106,.16)
+      display:none;margin-top:16px;padding:16px;border-radius:16px;
+      background:rgba(22,163,106,.055);border:1px solid rgba(22,163,106,.14)
     }
     .result-url{display:block;color:var(--green-dark);font-weight:700;word-break:break-all;text-decoration:none;margin:6px 0 13px}
     .toast{
-      position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-      display:none;padding:12px 18px;border-radius:13px;background:rgba(19,27,23,.94);
-      color:#fff;z-index:9999;font-weight:600;box-shadow:0 14px 45px rgba(0,0,0,.22)
+      position:fixed;left:50%;bottom:28px;transform:translateX(-50%);
+      display:none;padding:10px 16px;border-radius:11px;background:rgba(19,27,23,.94);
+      color:#fff;z-index:9999;font-weight:600;box-shadow:0 10px 35px rgba(0,0,0,.18)
     }
-    .login-card{text-align:center;padding:34px}
-    .login-card form{text-align:left;margin-top:24px}
+    .login-card{padding:34px}
     .login-error{margin-top:13px;text-align:center;color:#cf4148;font-weight:600}
-    .footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
     @media(max-width:760px){
-      .page{padding-top:22px}
-      .header{align-items:flex-start;flex-direction:column}
-      .header-actions{width:100%;display:grid!important;grid-template-columns:repeat(3,1fr)}
+      .page{padding-top:20px}
+      .admin-shell{padding:18px;border-radius:22px}
+      .admin-header{align-items:flex-start;flex-direction:column}
+      .header-actions{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
       .header-actions button{width:100%;padding-left:8px;padding-right:8px}
       .form-grid{grid-template-columns:1fr}
       .stats{grid-template-columns:1fr 1fr}
-      .panel{padding:18px}
+      .panel,.inner-card{padding:18px}
       .title{font-size:24px}
     }
     @media(max-width:460px){
@@ -416,22 +417,23 @@ function getToolStyles() {
       .modal-content{padding:20px;border-radius:20px}
     }
     @media(prefers-color-scheme:dark){
-      :root{--bg:#0c1210;--card:rgba(20,29,25,.82);--card-solid:#141d19;--text:#e8f0eb;--muted:#9ca9a2;--line:rgba(255,255,255,.09);--green-soft:rgba(41,201,132,.12)}
-      body{background:radial-gradient(circle at 10% 0%,rgba(42,193,127,.13),transparent 30%),radial-gradient(circle at 95% 10%,rgba(22,120,82,.13),transparent 28%),var(--bg)}
-      .panel,.stat{background:var(--card)}
-      .admin-shell{background:rgba(20,29,25,.58);border-color:rgba(255,255,255,.08)}
-      .inner-card{background:rgba(20,29,25,.72);border-color:rgba(255,255,255,.08)}
-      .admin-shell .stat{background:rgba(255,255,255,.045)}
-      .site-logo-preview{background:rgba(42,193,127,.07);border-color:rgba(42,193,127,.18)}
-      input{background:rgba(9,15,12,.72);color:var(--text);border-color:rgba(255,255,255,.10)}
+      :root{
+        --bg:#0d1210;--shell:rgba(18,26,22,.78);--card:rgba(20,29,25,.84);
+        --text:#e8f0eb;--muted:#9ca9a2;--line:rgba(255,255,255,.09);--green-soft:rgba(41,201,132,.10)
+      }
+      body{background:var(--bg)}
+      input{background:rgba(12,18,15,.76);color:var(--text);border-color:rgba(255,255,255,.10)}
       input:focus{background:#0b100d}
-      button.secondary{background:rgba(255,255,255,.07);color:var(--text);border-color:rgba(255,255,255,.12)}
-      button.secondary:hover{background:rgba(255,255,255,.11)}
-      table{background:rgba(10,16,13,.25)}
+      button.secondary{background:rgba(255,255,255,.06);color:var(--text);border-color:rgba(255,255,255,.10)}
+      button.secondary:hover{background:rgba(255,255,255,.10)}
+      .stat{background:rgba(255,255,255,.035)}
+      table{background:rgba(255,255,255,.018)}
       th{background:rgba(255,255,255,.035)}
-      .url-link{color:#65d7a5}
-      .modal-content{background:rgba(22,31,27,.97);border-color:rgba(255,255,255,.09)}
-      .modal-close{background:rgba(255,255,255,.07);color:#b8c5bd}
+      .modal-content{background:rgba(25,33,29,.97);border-color:rgba(255,255,255,.08)}
+      .modal-close{background:rgba(255,255,255,.07);color:#dbe6df}
+      .modal-close:hover{background:rgba(255,255,255,.11)}
+      .result-box{background:rgba(41,201,132,.08)}
+      .result-url,.url-link{color:#4fd493}
     }
   `;
 }
@@ -463,6 +465,7 @@ function renderScripts() {
 }
 
 function renderIndex(siteConfig = {}) {
+  const logo = siteConfig.logo || siteConfig.site_logo || siteConfig.admin_logo || '';
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -476,26 +479,28 @@ function renderIndex(siteConfig = {}) {
 <div id="toast" class="toast"></div>
 <main class="page narrow" style="padding-top:12vh">
   <section class="panel" style="padding:30px">
-    <div class="brand" style="margin-bottom:24px">
-      ${siteConfig.site_logo ? `<img class="brand-logo" src="${escapeHTML(siteConfig.site_logo)}" alt="站点 Logo">` : ''}
-      <div class="brand-text"><h1 class="title">CF-SURL</h1><div class="subtitle">短链接生成与管理</div></div>
+    <div class="brand" style="margin-bottom:28px">
+      ${logo ? `<img class="brand-logo" src="${escapeHTML(logo)}" alt="Logo">` : ''}
+      <div class="brand-text">
+        <h1 class="title">CF-SURL</h1>
+        <div class="subtitle">极简短链接</div>
+      </div>
     </div>
     <div class="field">
       <label for="longUrl">目标 URL</label>
-      <input type="url" id="longUrl" placeholder="输入完整网址，例如 example.com" autocomplete="off">
-      <div class="hint">支持直接输入域名，生成时会自动补全 HTTPS。</div>
+      <input class="home-input" type="url" id="longUrl" placeholder="输入网址，例如 example.com" autocomplete="off">
+      <div class="hint">支持直接输入域名，生成时自动补全 HTTPS。</div>
     </div>
     <button id="generateBtn" style="width:100%;margin-top:4px" onclick="shortenUrl()">生成短链接</button>
     <div class="result-box" id="resultBox">
       <div style="font-size:12px;color:var(--muted)">短链接已生成</div>
       <a href="#" id="shortUrl" target="_blank" rel="noopener noreferrer" class="result-url"></a>
       <div class="toolbar">
-        <button class="secondary" type="button" onclick="copyToClipboard()">复制链接</button>
-        <button class="secondary" type="button" onclick="openShortUrl()">打开链接</button>
+        <button class="secondary" type="button" onclick="copyToClipboard()">复制</button>
+        <button class="secondary" type="button" onclick="openShortUrl()">打开</button>
       </div>
     </div>
   </section>
-  <div class="footer-note">CF-SURL</div>
 </main>
 ${renderScripts()}
 <script>
@@ -505,7 +510,7 @@ async function shortenUrl(){
   const btn=document.getElementById('generateBtn');
   const longUrl=input.value.trim();
   if(!longUrl)return showToast('请输入目标 URL');
-  if(!/^https?:\\/\\//i.test(longUrl))return showToast('网址格式不正确');
+  if(!/^https?:\/\//i.test(longUrl))return showToast('网址格式不正确');
   btn.disabled=true;btn.textContent='生成中...';
   try{
     const res=await fetch('/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:longUrl})});
@@ -530,6 +535,7 @@ async function copyToClipboard(){
 }
 
 function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH, siteConfig = {}) {
+  const logo = siteConfig.logo || siteConfig.site_logo || siteConfig.admin_logo || '';
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -561,14 +567,13 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH, siteConfig = {})
       <div class="hint">只填写路径名称，不要输入 /。</div>
     </div>
     <div class="field">
-      <label>站点首页 Logo</label>
-      <input type="url" id="site-logo-input" value="${escapeHTML(siteConfig.site_logo || '')}" placeholder="https://example.com/logo.png" oninput="updateLogoPreview('site-logo-input','siteLogoPreview','siteLogoPreviewImg','siteLogoPreviewText')">
-      <div class="site-logo-preview" id="siteLogoPreview" style="display:none"><img id="siteLogoPreviewImg" alt=""><span id="siteLogoPreviewText"></span></div>
-    </div>
-    <div class="field">
-      <label>管理员后台 Logo</label>
-      <input type="url" id="admin-logo-input" value="${escapeHTML(siteConfig.admin_logo || '')}" placeholder="https://example.com/admin-logo.png" oninput="updateLogoPreview('admin-logo-input','adminLogoPreview','adminLogoPreviewImg','adminLogoPreviewText')">
-      <div class="site-logo-preview" id="adminLogoPreview" style="display:none"><img id="adminLogoPreviewImg" alt=""><span id="adminLogoPreviewText"></span></div>
+      <label>站点 Logo</label>
+      <input type="url" id="logo-input" value="${escapeHTML(logo)}" maxlength="2048" placeholder="https://example.com/logo.png" oninput="updateLogoPreview()">
+      <div class="site-logo-preview" id="logoPreview" style="display:none">
+        <img id="logoPreviewImg" alt="Logo">
+        <span id="logoPreviewText"></span>
+      </div>
+      <div class="hint">只需填写一个 Logo URL，首页和管理员后台同时生效。</div>
     </div>
     <div class="modal-actions"><button class="secondary" onclick="closeSiteModal()">取消</button><button onclick="saveSiteSettings()">保存</button></div>
   </div>
@@ -588,57 +593,60 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH, siteConfig = {})
 </div>
 
 <main class="page">
-  <header class="header">
-    <div class="brand">
-      ${siteConfig.admin_logo ? `<img class="brand-logo" src="${escapeHTML(siteConfig.admin_logo)}" alt="管理员 Logo">` : ''}
-      <div class="brand-text"><h1 class="title">CF-SURL</h1><div class="subtitle">短链接管理控制台</div></div>
-    </div>
-    <div class="header-actions" style="display:flex;gap:8px">
-      <button class="secondary" onclick="openSecurityModal()">安全</button>
-      <button class="secondary" onclick="openSiteModal()">站点</button>
-      <button class="danger" onclick="logoutAdmin()">退出</button>
-    </div>
-  </header>
-
   <div class="admin-shell">
-  <section class="stats">
-    <div class="stat"><div class="stat-label">短链接总数</div><div class="stat-value" id="statTotal">-</div></div>
-    <div class="stat"><div class="stat-label">当前显示</div><div class="stat-value" id="statShown">-</div></div>
-    <div class="stat"><div class="stat-label">已选择</div><div class="stat-value" id="statSelected">0</div></div>
-  </section>
+    <header class="admin-header">
+      <div class="brand">
+        ${logo ? `<img class="brand-logo" src="${escapeHTML(logo)}" alt="Logo">` : ''}
+        <div class="brand-text">
+          <h1 class="title">CF-SURL</h1>
+          <div class="subtitle">短链接管理控制台</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="secondary" onclick="openSecurityModal()">安全</button>
+        <button class="secondary" onclick="openSiteModal()">站点</button>
+        <button class="danger" onclick="logoutAdmin()">退出</button>
+      </div>
+    </header>
 
-  <section class="inner-card">
-    <div class="section-head">
-      <div><h2 class="section-title">创建短链接</h2><p class="section-desc">自定义 Key 后即可直接使用 /Key 访问。</p></div>
-    </div>
-    <div class="form-grid">
-      <div class="field"><label>自定义 Key</label><input type="text" id="addKey" maxlength="64" placeholder="例如 google"></div>
-      <div class="field"><label>目标 URL</label><input type="url" id="addUrl" placeholder="输入域名或完整网址" onblur="formatUrlInput(this)"></div>
-      <button onclick="createLink()">添加链接</button>
-    </div>
-  </section>
+    <section class="stats">
+      <div class="stat"><div class="stat-label">短链接总数</div><div class="stat-value" id="statTotal">-</div></div>
+      <div class="stat"><div class="stat-label">当前显示</div><div class="stat-value" id="statShown">-</div></div>
+      <div class="stat"><div class="stat-label">已选择</div><div class="stat-value" id="statSelected">0</div></div>
+    </section>
 
-  <section class="panel">
-    <div class="section-head">
-      <div><h2 class="section-title">短链接列表</h2><p class="section-desc">支持搜索、编辑、复制、打开和批量删除。</p></div>
-      <button class="secondary" onclick="loadLinks()">刷新</button>
-    </div>
-    <div class="toolbar" style="margin-bottom:12px">
-      <input class="search" id="searchInput" type="search" placeholder="搜索 Key 或目标 URL" oninput="renderFilteredLinks()">
-      <button class="secondary" onclick="selectAllVisible()">全选当前</button>
-      <button class="secondary" onclick="clearSelection()">取消选择</button>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th style="width:45px"><input class="check" id="selectAll" type="checkbox" onchange="toggleAllVisible(this.checked)"></th><th>Key</th><th>目标 URL</th><th style="text-align:right">操作</th></tr></thead>
-        <tbody id="linkList"><tr><td colspan="4" class="empty">加载中...</td></tr></tbody>
-      </table>
-    </div>
-    <div class="bulkbar" id="bulkBar">
-      <div class="bulkbar-info">已选择 <span id="selectedCount">0</span> 个链接</div>
-      <div class="toolbar"><button class="secondary" onclick="clearSelection()">取消选择</button><button class="danger" onclick="deleteSelected()">删除所选</button></div>
-    </div>
-  </section>
+    <section class="inner-card">
+      <div class="section-head">
+        <div><h2 class="section-title">创建短链接</h2><p class="section-desc">自定义 Key 后即可直接使用 /Key 访问。</p></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>自定义 Key</label><input type="text" id="addKey" maxlength="64" placeholder="例如 google"></div>
+        <div class="field"><label>目标 URL</label><input type="url" id="addUrl" placeholder="输入域名或完整网址" onblur="formatUrlInput(this)"></div>
+        <button onclick="createLink()">添加链接</button>
+      </div>
+    </section>
+
+    <section class="inner-card" style="margin-top:14px">
+      <div class="section-head">
+        <div><h2 class="section-title">短链接列表</h2><p class="section-desc">支持搜索、编辑、复制、打开和批量删除。</p></div>
+        <button class="secondary" onclick="loadLinks()">刷新</button>
+      </div>
+      <div class="toolbar" style="margin-bottom:12px">
+        <input class="search" id="searchInput" type="search" placeholder="搜索 Key 或目标 URL" oninput="renderFilteredLinks()">
+        <button class="secondary" onclick="selectAllVisible()">全选当前</button>
+        <button class="secondary" onclick="clearSelection()">取消选择</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:45px"><input class="check" id="selectAll" type="checkbox" onchange="toggleAllVisible(this.checked)"></th><th>Key</th><th>目标 URL</th><th style="text-align:right">操作</th></tr></thead>
+          <tbody id="linkList"><tr><td colspan="4" class="empty">加载中...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="bulkbar" id="bulkBar">
+        <div class="bulkbar-info">已选择 <span id="selectedCount">0</span> 个链接</div>
+        <div class="toolbar"><button class="secondary" onclick="clearSelection()">取消选择</button><button class="danger" onclick="deleteSelected()">删除所选</button></div>
+      </div>
+    </section>
   </div>
 </main>
 ${renderScripts()}
@@ -661,29 +669,29 @@ async function saveSecurity(){
 }
 function openSiteModal(){
   document.getElementById('admin-path-input').value=${JSON.stringify(adminPath)};
-  document.getElementById('site-logo-input').value=${JSON.stringify(siteConfig.site_logo || '')};
-  document.getElementById('admin-logo-input').value=${JSON.stringify(siteConfig.admin_logo || '')};
-  updateLogoPreview('site-logo-input','siteLogoPreview','siteLogoPreviewImg','siteLogoPreviewText');
-  updateLogoPreview('admin-logo-input','adminLogoPreview','adminLogoPreviewImg','adminLogoPreviewText');
+  document.getElementById('logo-input').value=${JSON.stringify(logo)};
+  updateLogoPreview();
   document.getElementById('siteModal').style.display='flex'
 }
 function closeSiteModal(){document.getElementById('siteModal').style.display='none'}
-function updateLogoPreview(inputId,boxId,imgId,textId){
-  const value=document.getElementById(inputId).value.trim(),box=document.getElementById(boxId),img=document.getElementById(imgId),text=document.getElementById(textId);
+function updateLogoPreview(){
+  const value=document.getElementById('logo-input').value.trim(),box=document.getElementById('logoPreview'),img=document.getElementById('logoPreviewImg'),text=document.getElementById('logoPreviewText');
   if(!value){box.style.display='none';return}
   text.textContent=value;img.src=value;box.style.display='flex';
-  img.onerror=()=>{box.style.display='none'};
+  img.onerror=()=>{box.style.display='none'}
 }
 async function saveSiteSettings(){
   const value=document.getElementById('admin-path-input').value.trim();
-  const siteLogo=document.getElementById('site-logo-input').value.trim();
-  const adminLogo=document.getElementById('admin-logo-input').value.trim();
+  const logoValue=document.getElementById('logo-input').value.trim();
   if(!value)return showToast('后台路径不能为空');
   if(!/^[A-Za-z0-9_-]+$/.test(value))return showToast('路径只能使用字母、数字、下划线和短横线');
   if(value.length>64)return showToast('后台路径最长 64 个字符');
   if(['api','config'].includes(value.toLowerCase()))return showToast('该路径为系统保留字');
+  if(logoValue){
+    try{const u=new URL(logoValue);if(!['http:','https:'].includes(u.protocol))throw new Error();}catch(e){return showToast('Logo URL 格式不正确')}
+  }
   try{
-    const res=await fetch("${getAdminBasePath(adminPath)}/api/config",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_path:value,site_logo:siteLogo,admin_logo:adminLogo})});
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/config",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_path:value,logo:logoValue})});
     const data=await res.json();if(!res.ok)return showToast(data.error||'保存失败');
     closeSiteModal();window.location.replace('/');
   }catch(e){showToast('网络错误')}
@@ -692,7 +700,6 @@ async function logoutAdmin(){
   try{await fetch('/'+${JSON.stringify(adminPath)}+'/logout',{method:'POST',credentials:'same-origin'})}catch(e){}
   window.location.replace('/');
 }
-
 async function loadLinks(){
   const tbody=document.getElementById('linkList');
   tbody.innerHTML='<tr><td colspan="4" class="empty">加载中...</td></tr>';
@@ -703,9 +710,7 @@ async function loadLinks(){
     const validKeys=new Set(allLinks.map(x=>x.key));selectedKeys=new Set([...selectedKeys].filter(k=>validKeys.has(k)));
     document.getElementById('statTotal').textContent=allLinks.length;
     renderFilteredLinks();
-  }catch(e){
-    tbody.innerHTML='<tr><td colspan="4" class="empty">加载失败：'+escapeHtml(e.message)+'</td></tr>';
-  }
+  }catch(e){tbody.innerHTML='<tr><td colspan="4" class="empty">加载失败：'+escapeHtml(e.message)+'</td></tr>'}
 }
 function getFilteredLinks(){
   const q=document.getElementById('searchInput').value.trim().toLowerCase();
@@ -743,13 +748,8 @@ function renderFilteredLinks(){
 }
 function selectAllVisible(){toggleAllVisible(true)}
 function clearSelection(){selectedKeys.clear();renderFilteredLinks()}
-function toggleAllVisible(checked){
-  getFilteredLinks().forEach(x=>checked?selectedKeys.add(x.key):selectedKeys.delete(x.key));
-  renderFilteredLinks();
-}
-async function copyText(text){
-  try{await navigator.clipboard.writeText(text);showToast('已复制')}catch(e){showToast('复制失败')}
-}
+function toggleAllVisible(checked){getFilteredLinks().forEach(x=>checked?selectedKeys.add(x.key):selectedKeys.delete(x.key));renderFilteredLinks()}
+async function copyText(text){try{await navigator.clipboard.writeText(text);showToast('已复制')}catch(e){showToast('复制失败')}}
 async function createLink(){
   const key=document.getElementById('addKey').value.trim(),input=document.getElementById('addUrl');formatUrlInput(input);const url=input.value.trim();
   if(!key)return showToast('请输入 Key');if(!url)return showToast('请输入目标 URL');
@@ -794,7 +794,7 @@ async function deleteSelected(){
     selectedKeys.clear();showToast('已删除 '+(data.deleted||0)+' 个链接');await loadLinks();
   }catch(e){showToast('网络错误')}
 }
-['editModal','securityModal','siteModal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target.id===id){document.getElementById(id).style.display='none'}}));
+['editModal','securityModal','siteModal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target.id===id)document.getElementById(id).style.display='none'}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditModal();closeSecurityModal();closeSiteModal()}});
 loadLinks();
 </script>
@@ -803,13 +803,14 @@ loadLinks();
 }
 
 function renderLoginPage(error = '', adminPath = DEFAULT_ADMIN_PATH, siteConfig = {}) {
+  const logo = siteConfig.logo || siteConfig.site_logo || siteConfig.admin_logo || '';
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CF-SURL 管理登录</title><style>${getToolStyles()}</style></head>
 <body>
 <main class="page narrow" style="padding-top:12vh">
   <section class="panel login-card">
-    ${siteConfig.admin_logo ? `<div class="brand" style="justify-content:center;margin-bottom:20px"><img class="brand-logo" src="${escapeHTML(siteConfig.admin_logo)}" alt="管理员 Logo"></div>` : ''}
+    ${logo ? `<div class="brand" style="justify-content:center;margin-bottom:20px"><img class="brand-logo" src="${escapeHTML(logo)}" alt="Logo"></div>` : ''}
     <h1 class="title" style="font-size:25px">CF-SURL</h1>
     <div class="subtitle">管理员登录</div>
     <form method="POST" action="${getAdminBasePath(adminPath)}/login">
@@ -917,18 +918,18 @@ export default {
               if (oldConfigStr) oldConfig = JSON.parse(oldConfigStr);
             } catch (e) {}
 
-            // 保存站点设置：后台路径、首页 Logo、后台 Logo
+            // 保存站点设置：后台路径 + 一个统一 Logo
             if (typeof req.admin_path === 'string' && !('user' in req) && !('pass' in req) && !('confirm_pass' in req)) {
               const newAdminPath = normalizeAdminPath(req.admin_path);
-              const siteLogo = req.site_logo !== undefined ? normalizeLogoURL(req.site_logo) : String(oldConfig.site_logo || '');
-              const adminLogo = req.admin_logo !== undefined ? normalizeLogoURL(req.admin_logo) : String(oldConfig.admin_logo || '');
+              const logo = req.logo !== undefined
+                ? normalizeLogoURL(req.logo)
+                : String(oldConfig.logo || oldConfig.site_logo || oldConfig.admin_logo || '');
               await env.KV.put('CONFIG.json', JSON.stringify({
                 ...oldConfig,
                 admin_path: newAdminPath,
-                site_logo: siteLogo,
-                admin_logo: adminLogo
+                logo
               }));
-              return new Response(JSON.stringify({ status: 200, message: "站点设置已保存", admin_path: newAdminPath, site_logo: siteLogo, admin_logo: adminLogo }), { headers: jsonHeaders });
+              return new Response(JSON.stringify({ status: 200, message: "站点设置已保存", admin_path: newAdminPath, logo }), { headers: jsonHeaders });
             }
 
             // 保存账户用户名和密码，未提交后台路径时保持原值
