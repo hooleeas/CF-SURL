@@ -49,6 +49,20 @@ async function checkURL(url) {
   }
 }
 
+function normalizeLogoURL(value) {
+  const url = String(value ?? "").trim();
+  if (!url) return "";
+  if (url.length > 2048) throw new Error("Logo URL 最长 2048 个字符");
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") throw new Error("Logo URL 只能使用 http 或 https");
+    return parsed.href;
+  } catch (e) {
+    if (e && e.message && e.message.includes("只能使用")) throw e;
+    throw new Error("Logo URL 格式不正确");
+  }
+}
+
 function getKvPutOptions() {
   const MIN_TTL = 60;
   const rawTtl = Number(config.expiration_ttl);
@@ -221,7 +235,7 @@ async function handleAdminLogin(request, user, pass, adminPath = DEFAULT_ADMIN_P
     inputUser = String(form.get('username') || '');
     inputPass = String(form.get('password') || '');
   } catch (e) {
-    return new Response(renderLoginPage('登录请求格式不正确', adminPath), { status: 400, headers: htmlHeaders });
+    return new Response(renderLoginPage('登录请求格式不正确', adminPath, kvConfig), { status: 400, headers: htmlHeaders });
   }
   if (inputUser === user && inputPass === pass) {
     const session = await getAdminSessionValue(user, pass);
@@ -235,7 +249,7 @@ async function handleAdminLogin(request, user, pass, adminPath = DEFAULT_ADMIN_P
       }
     });
   }
-  return new Response(renderLoginPage('用户名或密码错误', adminPath), { status: 401, headers: htmlHeaders });
+  return new Response(renderLoginPage('用户名或密码错误', adminPath, kvConfig), { status: 401, headers: htmlHeaders });
 }
 
 // ================= UI 渲染模块 =================
@@ -290,14 +304,17 @@ function getToolStyles() {
     .page{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:34px 0 48px}
     .narrow{width:min(560px,calc(100% - 28px))}
     .header{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:22px}
-    .brand{display:flex;align-items:center;gap:13px}
-    .brand-mark{
-      width:44px;height:44px;border-radius:14px;
-      background:linear-gradient(145deg,#2bd28e,#078653);
-      box-shadow:0 10px 25px rgba(16,143,91,.22);
-      position:relative;overflow:hidden
-    }
-    .brand-mark:after{content:"";position:absolute;width:28px;height:28px;border:2px solid rgba(255,255,255,.72);border-radius:9px;left:8px;top:8px;transform:rotate(12deg)}
+    .brand{display:flex;align-items:center;gap:13px;min-width:0}
+    .brand-logo{width:44px;height:44px;border-radius:14px;object-fit:cover;flex:0 0 44px;box-shadow:0 10px 25px rgba(16,143,91,.18);border:1px solid rgba(22,163,106,.12);background:#fff}
+    .admin-shell{padding:26px;border-radius:28px;background:rgba(255,255,255,.42);border:1px solid rgba(35,65,48,.09);box-shadow:0 24px 70px rgba(22,55,39,.08);backdrop-filter:blur(22px)}
+    .inner-card{background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 28px rgba(22,55,39,.045)}
+    .inner-card + .inner-card{margin-top:14px}
+    .admin-shell .stats{margin-bottom:14px}
+    .admin-shell .stat{background:rgba(255,255,255,.68)}
+    .site-logo-preview{display:flex;align-items:center;gap:12px;margin-top:10px;padding:10px 12px;border:1px dashed rgba(22,163,106,.22);border-radius:13px;background:rgba(22,163,106,.04);min-height:62px}
+    .site-logo-preview img{width:42px;height:42px;object-fit:cover;border-radius:11px}
+    .site-logo-preview span{font-size:12px;color:var(--muted);word-break:break-all}
+    .brand-text{min-width:0}
     .title{margin:0;font-size:28px;line-height:1.2;font-weight:760;letter-spacing:-.5px}
     .subtitle{margin-top:7px;color:var(--muted);font-size:13px}
     .panel{
@@ -402,6 +419,10 @@ function getToolStyles() {
       :root{--bg:#0c1210;--card:rgba(20,29,25,.82);--card-solid:#141d19;--text:#e8f0eb;--muted:#9ca9a2;--line:rgba(255,255,255,.09);--green-soft:rgba(41,201,132,.12)}
       body{background:radial-gradient(circle at 10% 0%,rgba(42,193,127,.13),transparent 30%),radial-gradient(circle at 95% 10%,rgba(22,120,82,.13),transparent 28%),var(--bg)}
       .panel,.stat{background:var(--card)}
+      .admin-shell{background:rgba(20,29,25,.58);border-color:rgba(255,255,255,.08)}
+      .inner-card{background:rgba(20,29,25,.72);border-color:rgba(255,255,255,.08)}
+      .admin-shell .stat{background:rgba(255,255,255,.045)}
+      .site-logo-preview{background:rgba(42,193,127,.07);border-color:rgba(42,193,127,.18)}
       input{background:rgba(9,15,12,.72);color:var(--text);border-color:rgba(255,255,255,.10)}
       input:focus{background:#0b100d}
       button.secondary{background:rgba(255,255,255,.07);color:var(--text);border-color:rgba(255,255,255,.12)}
@@ -441,7 +462,7 @@ function renderScripts() {
   `;
 }
 
-function renderIndex() {
+function renderIndex(siteConfig = {}) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -456,8 +477,8 @@ function renderIndex() {
 <main class="page narrow" style="padding-top:12vh">
   <section class="panel" style="padding:30px">
     <div class="brand" style="margin-bottom:24px">
-      <div class="brand-mark"></div>
-      <div><h1 class="title">CF-SURL</h1><div class="subtitle">短链接生成与管理</div></div>
+      ${siteConfig.site_logo ? `<img class="brand-logo" src="${escapeHTML(siteConfig.site_logo)}" alt="站点 Logo">` : ''}
+      <div class="brand-text"><h1 class="title">CF-SURL</h1><div class="subtitle">短链接生成与管理</div></div>
     </div>
     <div class="field">
       <label for="longUrl">目标 URL</label>
@@ -508,7 +529,7 @@ async function copyToClipboard(){
 </html>`;
 }
 
-function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
+function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH, siteConfig = {}) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -531,15 +552,25 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
   </div>
 </div>
 
-<div class="modal-overlay" id="adminPathModal">
+<div class="modal-overlay" id="siteModal">
   <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="modal-title-row"><h2 class="section-title">后台路径</h2><button class="modal-close" onclick="closeAdminPathModal()">×</button></div>
+    <div class="modal-title-row"><h2 class="section-title">站点设置</h2><button class="modal-close" onclick="closeSiteModal()">×</button></div>
     <div class="field">
-      <label>自定义后台路径</label>
+      <label>管理员后台路径</label>
       <input type="text" id="admin-path-input" value="${escapeHTML(adminPath)}" maxlength="64" placeholder="例如 admin-panel">
       <div class="hint">只填写路径名称，不要输入 /。</div>
     </div>
-    <div class="modal-actions"><button class="secondary" onclick="closeAdminPathModal()">取消</button><button onclick="saveAdminPath()">保存</button></div>
+    <div class="field">
+      <label>站点首页 Logo</label>
+      <input type="url" id="site-logo-input" value="${escapeHTML(siteConfig.site_logo || '')}" placeholder="https://example.com/logo.png" oninput="updateLogoPreview('site-logo-input','siteLogoPreview','siteLogoPreviewImg','siteLogoPreviewText')">
+      <div class="site-logo-preview" id="siteLogoPreview" style="display:none"><img id="siteLogoPreviewImg" alt=""><span id="siteLogoPreviewText"></span></div>
+    </div>
+    <div class="field">
+      <label>管理员后台 Logo</label>
+      <input type="url" id="admin-logo-input" value="${escapeHTML(siteConfig.admin_logo || '')}" placeholder="https://example.com/admin-logo.png" oninput="updateLogoPreview('admin-logo-input','adminLogoPreview','adminLogoPreviewImg','adminLogoPreviewText')">
+      <div class="site-logo-preview" id="adminLogoPreview" style="display:none"><img id="adminLogoPreviewImg" alt=""><span id="adminLogoPreviewText"></span></div>
+    </div>
+    <div class="modal-actions"><button class="secondary" onclick="closeSiteModal()">取消</button><button onclick="saveSiteSettings()">保存</button></div>
   </div>
 </div>
 
@@ -559,23 +590,24 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
 <main class="page">
   <header class="header">
     <div class="brand">
-      <div class="brand-mark"></div>
-      <div><h1 class="title">CF-SURL</h1><div class="subtitle">短链接管理控制台</div></div>
+      ${siteConfig.admin_logo ? `<img class="brand-logo" src="${escapeHTML(siteConfig.admin_logo)}" alt="管理员 Logo">` : ''}
+      <div class="brand-text"><h1 class="title">CF-SURL</h1><div class="subtitle">短链接管理控制台</div></div>
     </div>
     <div class="header-actions" style="display:flex;gap:8px">
-      <button class="secondary" onclick="openSecurityModal()">安全设置</button>
-      <button class="secondary" onclick="openAdminPathModal()">后台路径</button>
-      <button class="danger" onclick="logoutAdmin()">退出登录</button>
+      <button class="secondary" onclick="openSecurityModal()">安全</button>
+      <button class="secondary" onclick="openSiteModal()">站点</button>
+      <button class="danger" onclick="logoutAdmin()">退出</button>
     </div>
   </header>
 
+  <div class="admin-shell">
   <section class="stats">
     <div class="stat"><div class="stat-label">短链接总数</div><div class="stat-value" id="statTotal">-</div></div>
     <div class="stat"><div class="stat-label">当前显示</div><div class="stat-value" id="statShown">-</div></div>
     <div class="stat"><div class="stat-label">已选择</div><div class="stat-value" id="statSelected">0</div></div>
   </section>
 
-  <section class="panel">
+  <section class="inner-card">
     <div class="section-head">
       <div><h2 class="section-title">创建短链接</h2><p class="section-desc">自定义 Key 后即可直接使用 /Key 访问。</p></div>
     </div>
@@ -607,6 +639,7 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
       <div class="toolbar"><button class="secondary" onclick="clearSelection()">取消选择</button><button class="danger" onclick="deleteSelected()">删除所选</button></div>
     </div>
   </section>
+  </div>
 </main>
 ${renderScripts()}
 <script>
@@ -626,18 +659,33 @@ async function saveSecurity(){
     closeSecurityModal();window.location.replace('/');
   }catch(e){showToast('网络错误')}
 }
-function openAdminPathModal(){document.getElementById('admin-path-input').value=${JSON.stringify(adminPath)};document.getElementById('adminPathModal').style.display='flex'}
-function closeAdminPathModal(){document.getElementById('adminPathModal').style.display='none'}
-async function saveAdminPath(){
+function openSiteModal(){
+  document.getElementById('admin-path-input').value=${JSON.stringify(adminPath)};
+  document.getElementById('site-logo-input').value=${JSON.stringify(siteConfig.site_logo || '')};
+  document.getElementById('admin-logo-input').value=${JSON.stringify(siteConfig.admin_logo || '')};
+  updateLogoPreview('site-logo-input','siteLogoPreview','siteLogoPreviewImg','siteLogoPreviewText');
+  updateLogoPreview('admin-logo-input','adminLogoPreview','adminLogoPreviewImg','adminLogoPreviewText');
+  document.getElementById('siteModal').style.display='flex'
+}
+function closeSiteModal(){document.getElementById('siteModal').style.display='none'}
+function updateLogoPreview(inputId,boxId,imgId,textId){
+  const value=document.getElementById(inputId).value.trim(),box=document.getElementById(boxId),img=document.getElementById(imgId),text=document.getElementById(textId);
+  if(!value){box.style.display='none';return}
+  text.textContent=value;img.src=value;box.style.display='flex';
+  img.onerror=()=>{box.style.display='none'};
+}
+async function saveSiteSettings(){
   const value=document.getElementById('admin-path-input').value.trim();
+  const siteLogo=document.getElementById('site-logo-input').value.trim();
+  const adminLogo=document.getElementById('admin-logo-input').value.trim();
   if(!value)return showToast('后台路径不能为空');
   if(!/^[A-Za-z0-9_-]+$/.test(value))return showToast('路径只能使用字母、数字、下划线和短横线');
   if(value.length>64)return showToast('后台路径最长 64 个字符');
   if(['api','config'].includes(value.toLowerCase()))return showToast('该路径为系统保留字');
   try{
-    const res=await fetch("${getAdminBasePath(adminPath)}/api/config",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_path:value})});
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/config",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_path:value,site_logo:siteLogo,admin_logo:adminLogo})});
     const data=await res.json();if(!res.ok)return showToast(data.error||'保存失败');
-    closeAdminPathModal();window.location.replace('/');
+    closeSiteModal();window.location.replace('/');
   }catch(e){showToast('网络错误')}
 }
 async function logoutAdmin(){
@@ -746,22 +794,22 @@ async function deleteSelected(){
     selectedKeys.clear();showToast('已删除 '+(data.deleted||0)+' 个链接');await loadLinks();
   }catch(e){showToast('网络错误')}
 }
-['editModal','securityModal','adminPathModal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target.id===id){document.getElementById(id).style.display='none'}}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditModal();closeSecurityModal();closeAdminPathModal()}});
+['editModal','securityModal','siteModal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target.id===id){document.getElementById(id).style.display='none'}}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditModal();closeSecurityModal();closeSiteModal()}});
 loadLinks();
 </script>
 </body>
 </html>`;
 }
 
-function renderLoginPage(error = '', adminPath = DEFAULT_ADMIN_PATH) {
+function renderLoginPage(error = '', adminPath = DEFAULT_ADMIN_PATH, siteConfig = {}) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CF-SURL 管理登录</title><style>${getToolStyles()}</style></head>
 <body>
 <main class="page narrow" style="padding-top:12vh">
   <section class="panel login-card">
-    <div class="brand" style="justify-content:center;margin-bottom:20px"><div class="brand-mark"></div></div>
+    ${siteConfig.admin_logo ? `<div class="brand" style="justify-content:center;margin-bottom:20px"><img class="brand-logo" src="${escapeHTML(siteConfig.admin_logo)}" alt="管理员 Logo"></div>` : ''}
     <h1 class="title" style="font-size:25px">CF-SURL</h1>
     <div class="subtitle">管理员登录</div>
     <form method="POST" action="${getAdminBasePath(adminPath)}/login">
@@ -836,7 +884,7 @@ export default {
           if (path === adminApiPath || path.startsWith(adminApiPath + '/')) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: jsonHeaders });
           }
-          return new Response(renderLoginPage('', adminPath), { headers: htmlHeaders });
+          return new Response(renderLoginPage('', adminPath, kvConfig), { headers: htmlHeaders });
         }
       }
       
@@ -854,7 +902,7 @@ export default {
 
       // 后台首页
       if (request.method === "GET" && path === adminBasePath) {
-        return new Response(renderAdmin(adminUser, adminPath), { headers: htmlHeaders });
+        return new Response(renderAdmin(adminUser, adminPath, kvConfig), { headers: htmlHeaders });
       }
 
       // API 接口
@@ -869,14 +917,18 @@ export default {
               if (oldConfigStr) oldConfig = JSON.parse(oldConfigStr);
             } catch (e) {}
 
-            // 独立保存管理员后台路径
+            // 保存站点设置：后台路径、首页 Logo、后台 Logo
             if (typeof req.admin_path === 'string' && !('user' in req) && !('pass' in req) && !('confirm_pass' in req)) {
               const newAdminPath = normalizeAdminPath(req.admin_path);
+              const siteLogo = req.site_logo !== undefined ? normalizeLogoURL(req.site_logo) : String(oldConfig.site_logo || '');
+              const adminLogo = req.admin_logo !== undefined ? normalizeLogoURL(req.admin_logo) : String(oldConfig.admin_logo || '');
               await env.KV.put('CONFIG.json', JSON.stringify({
                 ...oldConfig,
-                admin_path: newAdminPath
+                admin_path: newAdminPath,
+                site_logo: siteLogo,
+                admin_logo: adminLogo
               }));
-              return new Response(JSON.stringify({ status: 200, message: "后台路径已保存", admin_path: newAdminPath }), { headers: jsonHeaders });
+              return new Response(JSON.stringify({ status: 200, message: "站点设置已保存", admin_path: newAdminPath, site_logo: siteLogo, admin_logo: adminLogo }), { headers: jsonHeaders });
             }
 
             // 保存账户用户名和密码，未提交后台路径时保持原值
@@ -1009,7 +1061,7 @@ export default {
 
     // === GET 请求与短链接跳转 ===
     if (request.method === "GET") {
-      if (path === "/") return new Response(renderIndex(), { headers: htmlHeaders });
+      if (path === "/") return new Response(renderIndex(kvConfig), { headers: htmlHeaders });
 
       const key = path.substring(1);
       if (!key || key.indexOf("/") !== -1) return new Response(render404(), { status: 404, headers: htmlHeaders });
