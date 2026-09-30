@@ -243,102 +243,174 @@ function escapeHTML(text = '') {
   return String(text).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 }
 
+
 function getToolStyles() {
   return `
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #f5f7fa; color: #202124; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; transition: background 0.3s, color 0.3s; }
-    .page { width: 100%; max-width: 860px; margin: 0 auto; padding: 24px 14px; }
-    .header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-    .title { margin: 0; font-size: 28px; font-weight: 700; color: #1a1a1a; transition: color 0.3s; }
-    .subtitle { margin-top: 8px; color: #666; font-size: 13px; }
-    .panel { background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(229, 229, 223, 0.8); border-radius: 20px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); transition: background 0.3s, border-color 0.3s; }
-    .section-title { margin: 0 0 16px; font-size: 16px; font-weight: 700; }
-    .field { margin-bottom: 14px; }
-    label { display: block; margin-bottom: 6px; font-weight: 600; color: #1a1a1a; transition: color 0.3s; }
-    input { width: 100%; height: 44px; padding: 10px 14px; border: 1px solid rgba(207, 207, 200, 0.6); border-radius: 10px; background: rgba(255, 255, 255, 0.8); color: #202124; font-size: 14px; transition: all 0.3s ease; }
-    input:focus { outline: none; border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-    button { min-height: 44px; padding: 8px 20px; border: 1px solid #343a40; border-radius: 10px; background: #2f3338; color: #fff; font-size: 14px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
-    button:hover { background: #1f2327; box-shadow: 0 4px 12px rgba(34, 34, 34, 0.15); }
-    button.secondary { background: #fff; color: #222; border-color: #c8c8c0; }
-    button.secondary:hover { background: #f1f3f5; }
-    button.danger { background: #dc3545; border-color: #dc3545; }
-    button.danger:hover { background: #c82333; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2); }
-    button:disabled { opacity: 0.65; cursor: default; }
-    .toast { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none; padding: 12px 20px; color: #fff; background: rgba(0, 0, 0, 0.85); border-radius: 12px; z-index: 9999; font-weight: 500; }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid rgba(229, 229, 223, 0.8); }
-    th { font-weight: 600; color: #666; font-size: 13px; }
-    .url-cell { max-width: 350px; word-break: break-all; }
-    .key-cell { font-weight: 600; }
-    .empty { text-align: center; color: #888; padding: 30px; }
-    .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
-    .form-row .field { flex: 1; min-width: 200px; margin-bottom: 0; }
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 28px; width: 90%; max-width: 480px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255, 255, 255, 0.5); margin: auto; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-    .result-box { margin-top: 20px; padding: 18px; background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.2); border-radius: 12px; display: none; text-align: left; }
-    .result-url { font-size: 18px; color: #2e7d32; display: block; margin-bottom: 12px; word-break: break-all; font-weight: 600; text-decoration: none; }
-    
-    /* URL预览效果样式 */
-    .preview-box { margin-top: 8px; font-size: 13px; color: #666; background: rgba(0,0,0,0.02); padding: 10px 14px; border-radius: 10px; border: 1px dashed rgba(0,0,0,0.15); display: none; word-break: break-all; transition: all 0.3s ease; }
-    .preview-box a { color: #3b82f6; text-decoration: none; font-weight: 600; }
-    .preview-box a:hover { text-decoration: underline; }
-
-    .edit-link-preview {
-      margin-top: 10px;
-      padding: 11px 14px;
-      border: 1px solid rgba(37, 99, 235, 0.24);
-      border-radius: 10px;
-      background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(59, 130, 246, 0.06));
-      color: #2563eb;
-      font-size: 13px;
-      line-height: 1.5;
-      word-break: break-all;
-      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
-      cursor: default;
+    :root{
+      --bg:#f4f7f5;
+      --card:rgba(255,255,255,.86);
+      --card-solid:#fff;
+      --text:#17211b;
+      --muted:#6f7b74;
+      --line:rgba(35,65,48,.10);
+      --green:#16a36a;
+      --green-dark:#087a4b;
+      --green-soft:rgba(22,163,106,.10);
+      --danger:#d84a4a;
+      --shadow:0 18px 55px rgba(22,55,39,.09);
+      --radius:22px;
     }
-    .edit-link-preview .preview-label {
-      color: #2563eb;
-      font-weight: 600;
-      margin-right: 6px;
+    *{box-sizing:border-box}
+    html{min-height:100%;background:var(--bg)}
+    body{
+      margin:0;min-height:100vh;color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%,rgba(66,211,146,.16),transparent 30%),
+        radial-gradient(circle at 95% 10%,rgba(35,177,117,.11),transparent 28%),
+        var(--bg);
+      font-size:14px;line-height:1.55;
     }
-    .edit-link-preview .preview-value {
-      color: #2563eb;
-      text-decoration: underline;
-      text-decoration-color: rgba(37, 99, 235, 0.55);
-      text-underline-offset: 2px;
-      cursor: default;
-      pointer-events: none;
+    a{color:inherit}
+    button,input{font:inherit}
+    button{
+      min-height:42px;padding:9px 17px;border:1px solid #168e5d;border-radius:12px;
+      background:linear-gradient(135deg,#18aa70,#0f8b59);color:#fff;font-weight:650;
+      cursor:pointer;transition:.2s ease;box-shadow:0 6px 18px rgba(16,143,91,.16);
     }
-
-    @media (prefers-color-scheme: dark) {
-      body { background: #121212; color: #e0e0e0; }
-      .title, label { color: #f5f5f5; }
-      .subtitle, th { color: #aaa; }
-      .panel, .modal-content { background: rgba(30, 30, 30, 0.75); border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-      input { background: rgba(20, 20, 20, 0.8); color: #fff; border-color: rgba(255,255,255,0.2); }
-      input:focus { background: #000; border-color: #3b82f6; }
-      button { background: #3f4650; border-color: #69717c; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
-      button:hover { background: #525b67; border-color: #858f9b; }
-      button.secondary { background: #3a414a; color: #fff; border-color: #69717c; }
-      button.secondary:hover { background: #4b5561; border-color: #858f9b; }
-      button.danger { background: #b8323f; border-color: #d24b58; }
-      button.danger:hover { background: #d13e4d; border-color: #e16a75; }
-      th, td { border-bottom-color: rgba(255,255,255,0.1); }
-      .result-box { background: rgba(129, 199, 132, 0.1); border-color: rgba(129, 199, 132, 0.2); }
-      .result-url { color: #81c784; }
-      .edit-link-preview {
-        border-color: rgba(96, 165, 250, 0.32);
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(30, 64, 175, 0.18));
-        color: #93c5fd;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
-      }
-      .edit-link-preview .preview-label,
-      .edit-link-preview .preview-value { color: #93c5fd; }
-      .edit-link-preview .preview-value { text-decoration-color: rgba(147, 197, 253, 0.60); }
-      .preview-box { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); color: #aaa; }
-      .preview-box a { color: #64b5f6; }
+    button:hover{transform:translateY(-1px);box-shadow:0 9px 24px rgba(16,143,91,.22)}
+    button:active{transform:translateY(0)}
+    button:disabled{opacity:.55;cursor:default;transform:none;box-shadow:none}
+    button.secondary{
+      background:rgba(255,255,255,.72);color:#26332c;border-color:rgba(40,74,57,.16);
+      box-shadow:none
+    }
+    button.secondary:hover{background:#fff;border-color:rgba(22,163,106,.35)}
+    button.danger{background:linear-gradient(135deg,#e55a5a,#cc3f46);border-color:#cc3f46}
+    .page{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:34px 0 48px}
+    .narrow{width:min(560px,calc(100% - 28px))}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:13px}
+    .brand-mark{
+      width:44px;height:44px;border-radius:14px;
+      background:linear-gradient(145deg,#2bd28e,#078653);
+      box-shadow:0 10px 25px rgba(16,143,91,.22);
+      position:relative;overflow:hidden
+    }
+    .brand-mark:after{content:"";position:absolute;width:28px;height:28px;border:2px solid rgba(255,255,255,.72);border-radius:9px;left:8px;top:8px;transform:rotate(12deg)}
+    .title{margin:0;font-size:28px;line-height:1.2;font-weight:760;letter-spacing:-.5px}
+    .subtitle{margin-top:7px;color:var(--muted);font-size:13px}
+    .panel{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+      padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(18px);margin-bottom:18px
+    }
+    .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+    .section-title{margin:0;font-size:17px;font-weight:720}
+    .section-desc{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .field{margin-bottom:14px}
+    label{display:block;margin-bottom:7px;font-weight:650;font-size:13px}
+    input{
+      width:100%;height:46px;padding:10px 14px;border:1px solid rgba(37,72,54,.14);
+      border-radius:13px;background:rgba(255,255,255,.76);color:var(--text);outline:none;
+      transition:.2s ease
+    }
+    input:focus{border-color:rgba(22,163,106,.65);box-shadow:0 0 0 4px rgba(22,163,106,.10);background:#fff}
+    .form-grid{display:grid;grid-template-columns:220px 1fr auto;gap:12px;align-items:end}
+    .form-grid .field{margin:0}
+    .hint{color:var(--muted);font-size:12px;margin-top:6px}
+    .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+    .toolbar .search{flex:1;min-width:220px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+    .stat{
+      padding:17px 18px;border:1px solid var(--line);border-radius:18px;
+      background:rgba(255,255,255,.62)
+    }
+    .stat-label{color:var(--muted);font-size:12px}
+    .stat-value{font-size:25px;font-weight:760;margin-top:4px;letter-spacing:-.5px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:rgba(255,255,255,.34)}
+    th,td{padding:14px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+    th{font-size:12px;color:var(--muted);font-weight:680;white-space:nowrap;background:rgba(248,250,249,.7)}
+    tbody tr:last-child td{border-bottom:0}
+    tbody tr:hover{background:rgba(22,163,106,.035)}
+    .key-cell{font-weight:700;white-space:nowrap}
+    .url-cell{max-width:420px;word-break:break-all}
+    .url-link{color:#087f51;text-decoration:none}
+    .url-link:hover{text-decoration:underline}
+    .actions{display:flex;justify-content:flex-end;gap:7px;white-space:nowrap}
+    .actions button{min-height:36px;padding:7px 12px;font-size:13px}
+    .check{width:17px;height:17px;accent-color:var(--green)}
+    .empty{text-align:center;color:var(--muted);padding:38px 20px}
+    .bulkbar{
+      display:none;align-items:center;justify-content:space-between;gap:12px;
+      margin-top:12px;padding:11px 13px;border:1px solid rgba(22,163,106,.15);
+      border-radius:14px;background:var(--green-soft)
+    }
+    .bulkbar.show{display:flex}
+    .bulkbar-info{font-size:13px;font-weight:650}
+    .modal-overlay{
+      position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+      padding:18px;background:rgba(9,22,15,.28);backdrop-filter:blur(12px);z-index:1000
+    }
+    .modal-content{
+      width:min(500px,100%);background:rgba(255,255,255,.95);border:1px solid rgba(255,255,255,.7);
+      border-radius:24px;padding:25px;box-shadow:0 28px 80px rgba(10,35,22,.22)
+    }
+    .modal-title-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+    .modal-close{
+      width:36px;height:36px;min-height:36px;padding:0;border-radius:11px;background:rgba(30,50,40,.06);
+      color:#516057;border:0;box-shadow:none;font-size:20px
+    }
+    .modal-close:hover{background:rgba(30,50,40,.11);box-shadow:none}
+    .modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
+    .result-box{
+      display:none;margin-top:17px;padding:17px;border-radius:17px;
+      background:linear-gradient(135deg,rgba(37,198,128,.10),rgba(22,163,106,.04));
+      border:1px solid rgba(22,163,106,.16)
+    }
+    .result-url{display:block;color:var(--green-dark);font-weight:700;word-break:break-all;text-decoration:none;margin:6px 0 13px}
+    .toast{
+      position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+      display:none;padding:12px 18px;border-radius:13px;background:rgba(19,27,23,.94);
+      color:#fff;z-index:9999;font-weight:600;box-shadow:0 14px 45px rgba(0,0,0,.22)
+    }
+    .login-card{text-align:center;padding:34px}
+    .login-card form{text-align:left;margin-top:24px}
+    .login-error{margin-top:13px;text-align:center;color:#cf4148;font-weight:600}
+    .footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+    @media(max-width:760px){
+      .page{padding-top:22px}
+      .header{align-items:flex-start;flex-direction:column}
+      .header-actions{width:100%;display:grid!important;grid-template-columns:repeat(3,1fr)}
+      .header-actions button{width:100%;padding-left:8px;padding-right:8px}
+      .form-grid{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr 1fr}
+      .panel{padding:18px}
+      .title{font-size:24px}
+    }
+    @media(max-width:460px){
+      .stats{grid-template-columns:1fr}
+      .toolbar{align-items:stretch}
+      .toolbar button{flex:1}
+      .toolbar .search{min-width:100%}
+      .bulkbar{align-items:flex-start;flex-direction:column}
+      .bulkbar .toolbar{width:100%}
+      .bulkbar button{width:100%}
+      .modal-content{padding:20px;border-radius:20px}
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#0c1210;--card:rgba(20,29,25,.82);--card-solid:#141d19;--text:#e8f0eb;--muted:#9ca9a2;--line:rgba(255,255,255,.09);--green-soft:rgba(41,201,132,.12)}
+      body{background:radial-gradient(circle at 10% 0%,rgba(42,193,127,.13),transparent 30%),radial-gradient(circle at 95% 10%,rgba(22,120,82,.13),transparent 28%),var(--bg)}
+      .panel,.stat{background:var(--card)}
+      input{background:rgba(9,15,12,.72);color:var(--text);border-color:rgba(255,255,255,.10)}
+      input:focus{background:#0b100d}
+      button.secondary{background:rgba(255,255,255,.07);color:var(--text);border-color:rgba(255,255,255,.12)}
+      button.secondary:hover{background:rgba(255,255,255,.11)}
+      table{background:rgba(10,16,13,.25)}
+      th{background:rgba(255,255,255,.035)}
+      .url-link{color:#65d7a5}
+      .modal-content{background:rgba(22,31,27,.97);border-color:rgba(255,255,255,.09)}
+      .modal-close{background:rgba(255,255,255,.07);color:#b8c5bd}
     }
   `;
 }
@@ -347,32 +419,24 @@ function renderScripts() {
   return `
     <script>
       let toastTimer;
-      function showToast(message) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.style.display = 'block';
+      function showToast(message){
+        const el=document.getElementById('toast');
+        if(!el)return;
+        el.textContent=message;
+        el.style.display='block';
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.style.display = 'none', 2000);
+        toastTimer=setTimeout(()=>el.style.display='none',1800);
       }
-      
-      // 智能补全https与实时预览
-      function formatUrlInput(inputEl, previewId) {
-        let val = inputEl.value.trim();
-        if (val && !/^https?:\\/\\//i.test(val)) {
-          val = 'https://' + val;
-          inputEl.value = val;
-        }
-        updatePreview(inputEl, previewId);
+      function escapeHtml(text){
+        const div=document.createElement('div');
+        div.textContent=String(text ?? '');
+        return div.innerHTML;
       }
-
-      function updatePreview(inputEl, previewId) {
-        const previewEl = document.getElementById(previewId);
-        if (!previewEl) return;
-        previewEl.style.display = 'none';
-        previewEl.innerHTML = '';
+      function formatUrlInput(inputEl){
+        let val=String(inputEl.value||'').trim();
+        if(val && !/^https?:\\/\\//i.test(val)) val='https://'+val;
+        inputEl.value=val;
       }
-
-      function escapeHtml(text){ const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
     </script>
   `;
 }
@@ -382,66 +446,62 @@ function renderIndex() {
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>极简短链接生成器</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#16a36a">
+<title>CF-SURL</title>
 <style>${getToolStyles()}</style>
 </head>
-<body style="display:flex; justify-content:center; align-items:center; min-height:100vh;">
+<body>
 <div id="toast" class="toast"></div>
-<main class="page" style="width:100%; max-width:540px;">
-<section class="panel" style="text-align:center; padding: 40px 30px;">
-  <h1 class="title" style="margin-bottom:8px;">极简短链接生成器</h1>
-  <div class="subtitle" style="margin-bottom:28px;">生成快速、安全的专属短链接</div>
-  
-  <div class="field" style="text-align:left;">
-    <input type="url" id="longUrl" placeholder="输入需缩短的域名或长链接 (如 github.com)" onblur="formatUrlInput(this, 'indexPreview')" oninput="updatePreview(this, 'indexPreview')" required>
-    <div id="indexPreview" class="preview-box"></div>
-  </div>
-  <button id="generateBtn" style="width:100%; margin-top:10px;" onclick="shortenUrl()">立即生成</button>
-  
-  <div class="result-box" id="resultBox">
-    <div style="font-size:13px; font-weight:600; margin-bottom:8px;">生成成功：</div>
-    <a href="#" id="shortUrl" target="_blank" class="result-url"></a>
-    <button type="button" class="secondary" style="padding:6px 14px;" onclick="copyToClipboard()">复制链接</button>
-  </div>
-</section>
+<main class="page narrow" style="padding-top:12vh">
+  <section class="panel" style="padding:30px">
+    <div class="brand" style="margin-bottom:24px">
+      <div class="brand-mark"></div>
+      <div><h1 class="title">CF-SURL</h1><div class="subtitle">短链接生成与管理</div></div>
+    </div>
+    <div class="field">
+      <label for="longUrl">目标 URL</label>
+      <input type="url" id="longUrl" placeholder="输入完整网址，例如 example.com" autocomplete="off">
+      <div class="hint">支持直接输入域名，生成时会自动补全 HTTPS。</div>
+    </div>
+    <button id="generateBtn" style="width:100%;margin-top:4px" onclick="shortenUrl()">生成短链接</button>
+    <div class="result-box" id="resultBox">
+      <div style="font-size:12px;color:var(--muted)">短链接已生成</div>
+      <a href="#" id="shortUrl" target="_blank" rel="noopener noreferrer" class="result-url"></a>
+      <div class="toolbar">
+        <button class="secondary" type="button" onclick="copyToClipboard()">复制链接</button>
+        <button class="secondary" type="button" onclick="openShortUrl()">打开链接</button>
+      </div>
+    </div>
+  </section>
+  <div class="footer-note">CF-SURL</div>
 </main>
 ${renderScripts()}
 <script>
-async function shortenUrl() {
-  const input = document.getElementById("longUrl");
-  formatUrlInput(input, 'indexPreview'); // 生成前强制格式化一次
-  const btn = document.getElementById("generateBtn");
-  const longUrl = input.value.trim();
-  if (!longUrl) return showToast("请输入有效的网址！");
-  if (!longUrl.startsWith("http://") && !longUrl.startsWith("https://")) return showToast("网址格式错误");
-  
-  btn.disabled = true; btn.innerText = "生成中...";
-  try {
-    const res = await fetch("/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: longUrl }) });
-    const data = await res.json();
-    if (res.ok && data.short_url) {
-      const finalUrl = window.location.origin + data.short_url;
-      const link = document.getElementById("shortUrl");
-      link.href = finalUrl; link.innerText = finalUrl;
-      document.getElementById("resultBox").style.display = "block";
-    } else {
-      showToast("生成失败：" + (data.error || "未知错误"));
-    }
-  } catch(e) {
-    showToast("网络错误，请稍后重试");
-  } finally {
-    btn.disabled = false; btn.innerText = "立即生成";
-  }
+async function shortenUrl(){
+  const input=document.getElementById('longUrl');
+  formatUrlInput(input);
+  const btn=document.getElementById('generateBtn');
+  const longUrl=input.value.trim();
+  if(!longUrl)return showToast('请输入目标 URL');
+  if(!/^https?:\\/\\//i.test(longUrl))return showToast('网址格式不正确');
+  btn.disabled=true;btn.textContent='生成中...';
+  try{
+    const res=await fetch('/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:longUrl})});
+    const data=await res.json();
+    if(!res.ok||!data.short_url)return showToast(data.error||'生成失败');
+    const finalUrl=new URL(data.short_url,location.origin).href;
+    const link=document.getElementById('shortUrl');
+    link.href=finalUrl;link.textContent=finalUrl;
+    document.getElementById('resultBox').style.display='block';
+  }catch(e){showToast('网络错误，请稍后重试')}
+  finally{btn.disabled=false;btn.textContent='生成短链接'}
 }
-async function copyToClipboard() {
-  const text = document.getElementById("shortUrl").innerText;
-  try {
-    await navigator.clipboard.writeText(text);
-    showToast("已复制到剪贴板！");
-  } catch(e) {
-    showToast("复制失败，请手动选择复制");
-  }
+function openShortUrl(){const a=document.getElementById('shortUrl');if(a&&a.href)window.open(a.href,'_blank','noopener')}
+async function copyToClipboard(){
+  const text=document.getElementById('shortUrl').textContent;
+  try{await navigator.clipboard.writeText(text);showToast('已复制')}
+  catch(e){showToast('复制失败，请手动复制')}
 }
 </script>
 </body>
@@ -453,299 +513,241 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH) {
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>短链接管理后台</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#16a36a">
+<title>CF-SURL 管理后台</title>
 <style>${getToolStyles()}</style>
 </head>
 <body>
 <div id="toast" class="toast"></div>
 
-<!-- 账户安全设置模态框 -->
 <div class="modal-overlay" id="securityModal">
   <div class="modal-content" onclick="event.stopPropagation()">
-    <h2 class="section-title" style="font-size:20px;">🛡️ 账户与安全设置</h2>
-    <div class="field">
-      <label>后台登录账号 (USER)</label>
-      <input type="text" id="sec-user" value="${escapeHTML(adminUser)}" placeholder="留空则无密码直接进入">
-    </div>
-    <div class="field">
-      <label>后台登录密码 (PASS)</label>
-      <input type="password" id="sec-pass" placeholder="输入新密码">
-    </div>
-    <div class="field">
-      <label>确认新密码 (PASS)</label>
-      <input type="password" id="sec-pass-confirm" placeholder="再次输入新密码">
-    </div>
-    <div class="modal-actions">
-      <button class="secondary" onclick="closeSecurityModal()">取消</button>
-      <button onclick="saveSecurity()">保存修改</button>
-    </div>
+    <div class="modal-title-row"><h2 class="section-title">账户与安全</h2><button class="modal-close" onclick="closeSecurityModal()">×</button></div>
+    <div class="field"><label>后台登录账号</label><input type="text" id="sec-user" value="${escapeHTML(adminUser)}" placeholder="留空则关闭登录验证"></div>
+    <div class="field"><label>后台登录密码</label><input type="password" id="sec-pass" placeholder="输入新密码"></div>
+    <div class="field"><label>确认新密码</label><input type="password" id="sec-pass-confirm" placeholder="再次输入新密码"></div>
+    <div class="modal-actions"><button class="secondary" onclick="closeSecurityModal()">取消</button><button onclick="saveSecurity()">保存</button></div>
   </div>
 </div>
 
-<!-- 管理员后台路径设置模态框 -->
 <div class="modal-overlay" id="adminPathModal">
   <div class="modal-content" onclick="event.stopPropagation()">
-    <h2 class="section-title" style="font-size:20px;">🔗 管理员后台路径</h2>
+    <div class="modal-title-row"><h2 class="section-title">后台路径</h2><button class="modal-close" onclick="closeAdminPathModal()">×</button></div>
     <div class="field">
       <label>自定义后台路径</label>
-      <input type="text" id="admin-path-input" value="${escapeHTML(adminPath)}" maxlength="64" placeholder="例如：admin-panel">
-      <div style="font-size:13px;color:var(--muted);margin-top:6px;">只填写路径名称，不要输入 /，例如：admin、admin-panel</div>
+      <input type="text" id="admin-path-input" value="${escapeHTML(adminPath)}" maxlength="64" placeholder="例如 admin-panel">
+      <div class="hint">只填写路径名称，不要输入 /。</div>
     </div>
-    <div class="modal-actions">
-      <button class="secondary" onclick="closeAdminPathModal()">取消</button>
-      <button onclick="saveAdminPath()">保存修改</button>
-    </div>
+    <div class="modal-actions"><button class="secondary" onclick="closeAdminPathModal()">取消</button><button onclick="saveAdminPath()">保存</button></div>
   </div>
 </div>
 
-<!-- 编辑模态框 -->
 <div class="modal-overlay" id="editModal">
   <div class="modal-content" onclick="event.stopPropagation()">
-    <h2 class="section-title" style="font-size:20px;">编辑短链接</h2>
+    <div class="modal-title-row"><h2 class="section-title">编辑短链接</h2><button class="modal-close" onclick="closeEditModal()">×</button></div>
     <div class="field">
-      <label>专属 Key</label>
+      <label>短链接 Key</label>
       <input type="text" id="editKey" maxlength="64" oninput="updateEditLinkPreview()">
-      <div id="editLinkPreview" class="edit-link-preview" style="display:none;" aria-label="链接预览">
-        <span class="preview-label">链接预览：</span><span id="editLinkPreviewValue" class="preview-value" aria-disabled="true"></span>
-      </div>
+      <div id="editLinkPreview" class="hint" style="display:none;margin-top:8px"></div>
     </div>
-    <div class="field">
-      <label>目标 URL</label>
-      <input type="url" id="editUrl" onblur="formatUrlInput(this)">
-    </div>
-    <div class="modal-actions">
-      <button class="secondary" onclick="closeEditModal()">取消</button>
-      <button onclick="saveEdit()">保存修改</button>
-    </div>
+    <div class="field"><label>目标 URL</label><input type="url" id="editUrl" onblur="formatUrlInput(this)"></div>
+    <div class="modal-actions"><button class="secondary" onclick="closeEditModal()">取消</button><button onclick="saveEdit()">保存修改</button></div>
   </div>
 </div>
 
 <main class="page">
   <header class="header">
-    <div>
-      <h1 class="title">短链接管理控制台</h1>
-      <div class="subtitle">管理您的所有专属短链接</div>
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div><h1 class="title">CF-SURL</h1><div class="subtitle">短链接管理控制台</div></div>
     </div>
-    <div style="display:flex; gap:8px;">
-      <button class="secondary" onclick="openSecurityModal()">🛡️ 安全</button>
-      <button class="secondary" onclick="openAdminPathModal()">🔗 后台路径</button>
-      <button class="danger" onclick="logoutAdmin()">🚪 退出</button>
+    <div class="header-actions" style="display:flex;gap:8px">
+      <button class="secondary" onclick="openSecurityModal()">安全设置</button>
+      <button class="secondary" onclick="openAdminPathModal()">后台路径</button>
+      <button class="danger" onclick="logoutAdmin()">退出登录</button>
     </div>
   </header>
 
+  <section class="stats">
+    <div class="stat"><div class="stat-label">短链接总数</div><div class="stat-value" id="statTotal">-</div></div>
+    <div class="stat"><div class="stat-label">当前显示</div><div class="stat-value" id="statShown">-</div></div>
+    <div class="stat"><div class="stat-label">已选择</div><div class="stat-value" id="statSelected">0</div></div>
+  </section>
+
   <section class="panel">
-    <h2 class="section-title">添加新链接</h2>
-    <div class="form-row">
-      <div class="field" style="max-width: 200px;">
-        <label>自定义 Key</label>
-        <input type="text" id="addKey" maxlength="64" placeholder="例如：google">
-      </div>
-      <div class="field">
-        <label>目标 URL</label>
-        <input type="url" id="addUrl" placeholder="输入域名将自动补全 https://" onblur="formatUrlInput(this, 'addPreview')" oninput="updatePreview(this, 'addPreview')">
-        <div id="addPreview" class="preview-box"></div>
-      </div>
-      <div style="margin-bottom: 0px; padding-bottom: 2px;">
-        <button onclick="createLink()" style="height: 44px; min-height: 44px;">添加链接</button>
-      </div>
+    <div class="section-head">
+      <div><h2 class="section-title">创建短链接</h2><p class="section-desc">自定义 Key 后即可直接使用 /Key 访问。</p></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>自定义 Key</label><input type="text" id="addKey" maxlength="64" placeholder="例如 google"></div>
+      <div class="field"><label>目标 URL</label><input type="url" id="addUrl" placeholder="输入域名或完整网址" onblur="formatUrlInput(this)"></div>
+      <button onclick="createLink()">添加链接</button>
     </div>
   </section>
 
   <section class="panel">
-    <h2 class="section-title">所有短链接</h2>
+    <div class="section-head">
+      <div><h2 class="section-title">短链接列表</h2><p class="section-desc">支持搜索、编辑、复制、打开和批量删除。</p></div>
+      <button class="secondary" onclick="loadLinks()">刷新</button>
+    </div>
+    <div class="toolbar" style="margin-bottom:12px">
+      <input class="search" id="searchInput" type="search" placeholder="搜索 Key 或目标 URL" oninput="renderFilteredLinks()">
+      <button class="secondary" onclick="selectAllVisible()">全选当前</button>
+      <button class="secondary" onclick="clearSelection()">取消选择</button>
+    </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>专属 Key</th><th>目标 URL</th><th>操作</th></tr></thead>
-        <tbody id="linkList"><tr><td colspan="3" class="empty">加载中...</td></tr></tbody>
+        <thead><tr><th style="width:45px"><input class="check" id="selectAll" type="checkbox" onchange="toggleAllVisible(this.checked)"></th><th>Key</th><th>目标 URL</th><th style="text-align:right">操作</th></tr></thead>
+        <tbody id="linkList"><tr><td colspan="4" class="empty">加载中...</td></tr></tbody>
       </table>
+    </div>
+    <div class="bulkbar" id="bulkBar">
+      <div class="bulkbar-info">已选择 <span id="selectedCount">0</span> 个链接</div>
+      <div class="toolbar"><button class="secondary" onclick="clearSelection()">取消选择</button><button class="danger" onclick="deleteSelected()">删除所选</button></div>
     </div>
   </section>
 </main>
 ${renderScripts()}
 <script>
-let editingOldKey = "";
+let editingOldKey='';
+let allLinks=[];
+let selectedKeys=new Set();
 
-// ==== 安全设置逻辑 ====
-function openSecurityModal() {
-  document.getElementById('sec-pass').value = '';
-  document.getElementById('sec-pass-confirm').value = '';
-  document.getElementById('securityModal').style.display = 'flex';
+function openSecurityModal(){document.getElementById('sec-pass').value='';document.getElementById('sec-pass-confirm').value='';document.getElementById('securityModal').style.display='flex'}
+function closeSecurityModal(){document.getElementById('securityModal').style.display='none';document.getElementById('sec-pass').value='';document.getElementById('sec-pass-confirm').value=''}
+async function saveSecurity(){
+  const user=document.getElementById('sec-user').value.trim(),pass=document.getElementById('sec-pass').value,confirmPass=document.getElementById('sec-pass-confirm').value;
+  if(!pass||!confirmPass)return showToast('请将密码输入两次');
+  if(pass!==confirmPass)return showToast('两次输入的密码不一致');
+  try{
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/config",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pass,confirm_pass:confirmPass})});
+    const data=await res.json();if(!res.ok)return showToast(data.error||'保存失败');
+    closeSecurityModal();window.location.replace('/');
+  }catch(e){showToast('网络错误')}
 }
-function closeSecurityModal() {
-  document.getElementById('securityModal').style.display = 'none';
-  document.getElementById('sec-pass').value = '';
-  document.getElementById('sec-pass-confirm').value = '';
+function openAdminPathModal(){document.getElementById('admin-path-input').value=${JSON.stringify(adminPath)};document.getElementById('adminPathModal').style.display='flex'}
+function closeAdminPathModal(){document.getElementById('adminPathModal').style.display='none'}
+async function saveAdminPath(){
+  const value=document.getElementById('admin-path-input').value.trim();
+  if(!value)return showToast('后台路径不能为空');
+  if(!/^[A-Za-z0-9_-]+$/.test(value))return showToast('路径只能使用字母、数字、下划线和短横线');
+  if(value.length>64)return showToast('后台路径最长 64 个字符');
+  if(['api','config'].includes(value.toLowerCase()))return showToast('该路径为系统保留字');
+  try{
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/config",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_path:value})});
+    const data=await res.json();if(!res.ok)return showToast(data.error||'保存失败');
+    closeAdminPathModal();window.location.replace('/');
+  }catch(e){showToast('网络错误')}
 }
-async function saveSecurity() {
-  const user = document.getElementById('sec-user').value.trim();
-  const pass = document.getElementById('sec-pass').value;
-  const confirmPass = document.getElementById('sec-pass-confirm').value;
-
-  if (!pass || !confirmPass) return showToast("请将密码输入两次");
-  if (pass !== confirmPass) return showToast("两次输入的密码不一致");
-
-  try {
-    const res = await fetch("${getAdminBasePath(adminPath)}/api/config", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user, pass, confirm_pass: confirmPass })
-    });
-    const data = await res.json();
-    if (!res.ok) return showToast(data.error || "设置保存失败");
-
-    closeSecurityModal();
-    window.location.replace('/');
-  } catch(e) {
-    showToast("网络错误");
-  }
-}
-
-// ==== 管理员后台路径设置逻辑 ====
-function openAdminPathModal() {
-  document.getElementById('admin-path-input').value = ${JSON.stringify(adminPath)};
-  document.getElementById('adminPathModal').style.display = 'flex';
-}
-function closeAdminPathModal() {
-  document.getElementById('adminPathModal').style.display = 'none';
-}
-async function saveAdminPath() {
-  const adminPathValue = document.getElementById('admin-path-input').value.trim();
-
-  if (!adminPathValue) return showToast("管理员后台路径不能为空");
-  if (!/^[A-Za-z0-9_-]+$/.test(adminPathValue)) return showToast("后台路径只能使用字母、数字、下划线和短横线，且不要输入 / ");
-  if (adminPathValue.length > 64) return showToast("后台路径最长 64 个字符");
-  if (adminPathValue.toLowerCase() === 'api' || adminPathValue.toLowerCase() === 'config') return showToast("后台路径不能使用系统保留字");
-
-  try {
-    const res = await fetch("${getAdminBasePath(adminPath)}/api/config", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ admin_path: adminPathValue })
-    });
-    const data = await res.json();
-    if (!res.ok) return showToast(data.error || "后台路径保存失败");
-
-    closeAdminPathModal();
-    window.location.replace('/');
-  } catch(e) {
-    showToast("网络错误");
-  }
-}
-
-async function logoutAdmin() {
-  try { await fetch('/' + ${JSON.stringify(adminPath)} + '/logout', { method: 'POST', credentials: 'same-origin' }); } catch(e) {}
+async function logoutAdmin(){
+  try{await fetch('/'+${JSON.stringify(adminPath)}+'/logout',{method:'POST',credentials:'same-origin'})}catch(e){}
   window.location.replace('/');
 }
 
-// ==== 数据加载逻辑 ====
-async function loadLinks() {
-  const tbody = document.getElementById("linkList");
-  try {
-    const res = await fetch("${getAdminBasePath(adminPath)}/api/links", { credentials: "same-origin", cache: "no-store" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "加载失败");
-    tbody.innerHTML = "";
-    if (!Array.isArray(data.links) || data.links.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="3" class="empty">暂无短链接</td></tr>';
-      return;
-    }
-    data.links.forEach(item => {
-      const tr = document.createElement("tr");
-      const keyTd = document.createElement("td");
-      keyTd.className = "key-cell";
-      keyTd.textContent = item.key;
-      const urlTd = document.createElement("td");
-      urlTd.className = "url-cell";
-      const a = document.createElement("a");
-      a.href = item.url; a.target = "_blank"; a.rel = "noopener noreferrer";
-      a.style.cssText = "color:#3b82f6;text-decoration:none;";
-      a.textContent = item.url;
-      urlTd.appendChild(a);
-      const opTd = document.createElement("td");
-      opTd.style.whiteSpace = "nowrap";
-      const edit = document.createElement("button");
-      edit.className = "secondary"; edit.style.cssText = "padding:6px 12px;min-height:auto;margin-right:6px;";
-      edit.textContent = "编辑"; edit.onclick = () => openEditModal(item.key, item.url);
-      const del = document.createElement("button");
-      del.className = "danger"; del.style.cssText = "padding:6px 12px;min-height:auto;";
-      del.textContent = "删除"; del.onclick = () => deleteLink(item.key);
-      opTd.append(edit, del);
-      tr.append(keyTd, urlTd, opTd);
-      tbody.appendChild(tr);
-    });
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="3" class="empty">加载失败：' + escapeHtml(e.message) + '</td></tr>';
+async function loadLinks(){
+  const tbody=document.getElementById('linkList');
+  tbody.innerHTML='<tr><td colspan="4" class="empty">加载中...</td></tr>';
+  try{
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/links",{credentials:'same-origin',cache:'no-store'});
+    const data=await res.json();if(!res.ok)throw new Error(data.error||'加载失败');
+    allLinks=Array.isArray(data.links)?data.links:[];
+    const validKeys=new Set(allLinks.map(x=>x.key));selectedKeys=new Set([...selectedKeys].filter(k=>validKeys.has(k)));
+    document.getElementById('statTotal').textContent=allLinks.length;
+    renderFilteredLinks();
+  }catch(e){
+    tbody.innerHTML='<tr><td colspan="4" class="empty">加载失败：'+escapeHtml(e.message)+'</td></tr>';
   }
 }
-
-async function createLink() {
-  const input = document.getElementById("addUrl");
-  formatUrlInput(input, 'addPreview');
-  const key = document.getElementById("addKey").value.trim();
-  const url = input.value.trim();
-  if (!key) return showToast("请输入 Key");
-  if (!url) return showToast("请输入目标 URL");
-  
-  try {
-    const res = await fetch("${getAdminBasePath(adminPath)}/api/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, url }) });
-    const data = await res.json();
-    if (!res.ok) return showToast(data.error || "添加失败");
-    document.getElementById("addKey").value = ""; document.getElementById("addUrl").value = "";
-    updatePreview(input, 'addPreview');
-    showToast("添加成功"); loadLinks();
-  } catch(e) { showToast("网络错误，请稍后重试"); }
+function getFilteredLinks(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  if(!q)return allLinks;
+  return allLinks.filter(item=>String(item.key).toLowerCase().includes(q)||String(item.url).toLowerCase().includes(q));
 }
-
-function updateEditLinkPreview() {
-  const key = document.getElementById('editKey').value.trim();
-  const preview = document.getElementById('editLinkPreview');
-  const value = document.getElementById('editLinkPreviewValue');
-  if (!key) { value.textContent = ''; preview.style.display = 'none'; return; }
-  value.textContent = window.location.origin + '/' + key;
-  value.style.pointerEvents = 'none';
-  preview.style.display = 'block';
+function renderFilteredLinks(){
+  const tbody=document.getElementById('linkList'),items=getFilteredLinks();
+  document.getElementById('statShown').textContent=items.length;
+  document.getElementById('statSelected').textContent=selectedKeys.size;
+  document.getElementById('selectedCount').textContent=selectedKeys.size;
+  document.getElementById('bulkBar').classList.toggle('show',selectedKeys.size>0);
+  const master=document.getElementById('selectAll');
+  master.checked=items.length>0&&items.every(x=>selectedKeys.has(x.key));
+  master.indeterminate=items.some(x=>selectedKeys.has(x.key))&&!master.checked;
+  if(!items.length){tbody.innerHTML='<tr><td colspan="4" class="empty">'+(allLinks.length?'没有匹配的短链接':'暂无短链接')+'</td></tr>';return}
+  tbody.innerHTML='';
+  items.forEach(item=>{
+    const tr=document.createElement('tr');
+    const checkTd=document.createElement('td');
+    const check=document.createElement('input');check.type='checkbox';check.className='check';check.checked=selectedKeys.has(item.key);
+    check.onchange=()=>{check.checked?selectedKeys.add(item.key):selectedKeys.delete(item.key);renderFilteredLinks()};
+    checkTd.appendChild(check);
+    const keyTd=document.createElement('td');keyTd.className='key-cell';keyTd.textContent=item.key;
+    const urlTd=document.createElement('td');urlTd.className='url-cell';
+    const a=document.createElement('a');a.className='url-link';a.href=item.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=item.url;urlTd.appendChild(a);
+    const opTd=document.createElement('td');const actions=document.createElement('div');actions.className='actions';
+    const copy=document.createElement('button');copy.className='secondary';copy.textContent='复制';copy.onclick=()=>copyText(new URL('/'+item.key,location.origin).href);
+    const open=document.createElement('button');open.className='secondary';open.textContent='打开';open.onclick=()=>window.open('/'+encodeURIComponent(item.key),'_blank','noopener');
+    const edit=document.createElement('button');edit.className='secondary';edit.textContent='编辑';edit.onclick=()=>openEditModal(item.key,item.url);
+    const del=document.createElement('button');del.className='danger';del.textContent='删除';del.onclick=()=>deleteLink(item.key);
+    actions.append(copy,open,edit,del);opTd.appendChild(actions);
+    tr.append(checkTd,keyTd,urlTd,opTd);tbody.appendChild(tr);
+  });
 }
-
-function openEditModal(key, url) {
-  editingOldKey = key; document.getElementById('editKey').value = key; updateEditLinkPreview();
-  const input = document.getElementById('editUrl');
-  input.value = url;
-  formatUrlInput(input);
-  document.getElementById('editModal').style.display = 'flex';
+function selectAllVisible(){toggleAllVisible(true)}
+function clearSelection(){selectedKeys.clear();renderFilteredLinks()}
+function toggleAllVisible(checked){
+  getFilteredLinks().forEach(x=>checked?selectedKeys.add(x.key):selectedKeys.delete(x.key));
+  renderFilteredLinks();
 }
-function closeEditModal() { editingOldKey = ''; document.getElementById('editModal').style.display = 'none'; }
-
-async function saveEdit() {
-  const input = document.getElementById("editUrl");
-  formatUrlInput(input);
-  const newKey = document.getElementById("editKey").value.trim();
-  const newUrl = input.value.trim();
-  if (!newKey || !newUrl) return showToast("Key 或 URL 不能为空");
-  try {
-    const res = await fetch("${getAdminBasePath(adminPath)}/api/update", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ oldKey: editingOldKey, key: newKey, url: newUrl }) });
-    const data = await res.json();
-    if (!res.ok) return showToast(data.error || "修改失败");
-    closeEditModal(); showToast("修改成功"); loadLinks();
-  } catch(e) { showToast("网络错误"); }
+async function copyText(text){
+  try{await navigator.clipboard.writeText(text);showToast('已复制')}catch(e){showToast('复制失败')}
 }
-
-async function deleteLink(key) {
-  if (!confirm(\`确定要删除 Key 为「\${key}」的短链接吗？\`)) return;
-  try {
-    const res = await fetch("${getAdminBasePath(adminPath)}/api/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key }) });
-    const data = await res.json();
-    if (!res.ok) return showToast(data.error || "删除失败");
-    showToast("删除成功"); loadLinks();
-  } catch(e) { showToast("网络错误"); }
+async function createLink(){
+  const key=document.getElementById('addKey').value.trim(),input=document.getElementById('addUrl');formatUrlInput(input);const url=input.value.trim();
+  if(!key)return showToast('请输入 Key');if(!url)return showToast('请输入目标 URL');
+  try{
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/create",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,url})});
+    const data=await res.json();if(!res.ok)return showToast(data.error||'添加失败');
+    document.getElementById('addKey').value='';input.value='';showToast('添加成功');await loadLinks();
+  }catch(e){showToast('网络错误，请稍后重试')}
 }
-
-document.getElementById('editModal').addEventListener('click', closeEditModal);
-document.getElementById('securityModal').addEventListener('click', closeSecurityModal);
-document.getElementById('adminPathModal').addEventListener('click', closeAdminPathModal);
-document.addEventListener('keydown', e => { 
-  if (e.key === 'Escape') { closeEditModal(); closeSecurityModal(); closeAdminPathModal(); }
-});
+function updateEditLinkPreview(){
+  const key=document.getElementById('editKey').value.trim(),el=document.getElementById('editLinkPreview');
+  if(!key){el.style.display='none';return}
+  el.textContent=location.origin+'/'+key;el.style.display='block';
+}
+function openEditModal(key,url){
+  editingOldKey=key;document.getElementById('editKey').value=key;document.getElementById('editUrl').value=url;formatUrlInput(document.getElementById('editUrl'));updateEditLinkPreview();document.getElementById('editModal').style.display='flex'
+}
+function closeEditModal(){editingOldKey='';document.getElementById('editModal').style.display='none'}
+async function saveEdit(){
+  const input=document.getElementById('editUrl');formatUrlInput(input);const newKey=document.getElementById('editKey').value.trim(),newUrl=input.value.trim();
+  if(!newKey||!newUrl)return showToast('Key 或 URL 不能为空');
+  try{
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/update",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oldKey:editingOldKey,key:newKey,url:newUrl})});
+    const data=await res.json();if(!res.ok)return showToast(data.error||'修改失败');
+    closeEditModal();showToast('修改成功');await loadLinks();
+  }catch(e){showToast('网络错误')}
+}
+async function deleteLink(key){
+  if(!confirm('确定删除短链接「'+key+'」吗？'))return;
+  try{
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/delete",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
+    const data=await res.json();if(!res.ok)return showToast(data.error||'删除失败');
+    selectedKeys.delete(key);showToast('删除成功');await loadLinks();
+  }catch(e){showToast('网络错误')}
+}
+async function deleteSelected(){
+  const keys=[...selectedKeys];if(!keys.length)return;
+  if(!confirm('确定删除已选择的 '+keys.length+' 个短链接吗？'))return;
+  try{
+    const res=await fetch("${getAdminBasePath(adminPath)}/api/bulk-delete",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keys})});
+    const data=await res.json();if(!res.ok)return showToast(data.error||'批量删除失败');
+    selectedKeys.clear();showToast('已删除 '+(data.deleted||0)+' 个链接');await loadLinks();
+  }catch(e){showToast('网络错误')}
+}
+['editModal','securityModal','adminPathModal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target.id===id){document.getElementById(id).style.display='none'}}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditModal();closeSecurityModal();closeAdminPathModal()}});
 loadLinks();
 </script>
 </body>
@@ -755,24 +757,20 @@ loadLinks();
 function renderLoginPage(error = '', adminPath = DEFAULT_ADMIN_PATH) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<title>登录控制台</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>${getToolStyles()}</style>
-</head>
-<body style="display:flex; justify-content:center; align-items:center; min-height:100vh;">
-<main class="page" style="width:100%; max-width:420px;">
-<section class="panel" style="padding:40px 30px; text-align:center;">
-  <h1 class="title" style="margin-bottom:10px;">控制台登录</h1>
-  <div class="subtitle" style="margin-bottom:30px;">请验证管理员身份</div>
-  <form method="POST" action="${getAdminBasePath(adminPath)}/login" style="text-align:left;">
-    <div class="field"><label>用户名</label><input name="username" type="text" required autofocus></div>
-    <div class="field"><label>密码</label><input name="password" type="password" required></div>
-    <button type="submit" style="width:100%; margin-top:14px;">安全登录</button>
-    ${error ? `<div style="text-align:center; margin-top:15px; color:#dc3545; font-weight:600;">${escapeHTML(error)}</div>` : ''}
-  </form>
-</section>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CF-SURL 管理登录</title><style>${getToolStyles()}</style></head>
+<body>
+<main class="page narrow" style="padding-top:12vh">
+  <section class="panel login-card">
+    <div class="brand" style="justify-content:center;margin-bottom:20px"><div class="brand-mark"></div></div>
+    <h1 class="title" style="font-size:25px">CF-SURL</h1>
+    <div class="subtitle">管理员登录</div>
+    <form method="POST" action="${getAdminBasePath(adminPath)}/login">
+      <div class="field"><label>用户名</label><input name="username" type="text" required autofocus></div>
+      <div class="field"><label>密码</label><input name="password" type="password" required></div>
+      <button type="submit" style="width:100%;margin-top:8px">登录</button>
+      ${error ? `<div class="login-error">${escapeHTML(error)}</div>` : ''}
+    </form>
+  </section>
 </main>
 </body>
 </html>`;
@@ -781,19 +779,15 @@ function renderLoginPage(error = '', adminPath = DEFAULT_ADMIN_PATH) {
 function render404() {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>404 未找到</title>
-<style>${getToolStyles()}</style>
-</head>
-<body style="display:flex; justify-content:center; align-items:center; min-height:80vh;">
-<main class="page" style="width:100%; max-width:420px;">
-<section class="panel" style="text-align:center; padding: 40px;">
-  <h1 class="title" style="font-size: 64px; color: #dc3545; margin-bottom: 10px;">404</h1>
-  <p style="margin-bottom: 30px; color: #666; font-size: 15px;">抱歉，您访问的短链接不存在或已过期。</p>
-  <button class="secondary" onclick="window.location.href='/'">返回首页</button>
-</section>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CF-SURL</title><style>${getToolStyles()}</style></head>
+<body>
+<main class="page narrow" style="padding-top:15vh">
+  <section class="panel" style="text-align:center;padding:42px 28px">
+    <div style="font-size:58px;font-weight:800;letter-spacing:-2px;margin-bottom:8px">404</div>
+    <h1 class="section-title" style="font-size:21px">短链接不存在</h1>
+    <p class="subtitle" style="margin:8px 0 24px">您访问的短链接不存在或已过期。</p>
+    <button class="secondary" onclick="location.href='/'">返回首页</button>
+  </section>
 </main>
 </body>
 </html>`;
@@ -802,7 +796,7 @@ function render404() {
 // ================= API 请求核心路由 =================
 export default {
   async fetch(request, env) {
-    if (!env.KV) return new Response("Error: 请先在配置中绑定 KV 命名空间为 LINKS", { status: 500 });
+    if (!env.KV) return new Response("Error: 请先绑定名为 KV 的 Cloudflare KV Namespace", { status: 500 });
 
     const requestURL = new URL(request.url);
     const path = requestURL.pathname;
@@ -920,6 +914,18 @@ export default {
             if (path === `${adminApiPath}/delete`) {
               await adminDeleteLink(env, req.key);
               return new Response(JSON.stringify({ status: 200, message: "删除成功" }), { headers: jsonHeaders });
+            }
+            if (path === `${adminApiPath}/bulk-delete`) {
+              const keys = Array.isArray(req.keys) ? req.keys.slice(0, 500) : [];
+              if (!keys.length) throw new Error("未选择短链接");
+              let deleted = 0;
+              for (const key of keys) {
+                try {
+                  await adminDeleteLink(env, key);
+                  deleted++;
+                } catch (e) {}
+              }
+              return new Response(JSON.stringify({ status: 200, deleted }), { headers: jsonHeaders });
             }
           }
         } catch (e) {
