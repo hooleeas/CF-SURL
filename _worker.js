@@ -282,6 +282,8 @@ function getToolStyles() {
       background:var(--bg);
       font-size:14px;line-height:1.55;
     }
+    body.home-page{display:flex;align-items:center;justify-content:center;padding:20px;}
+    body.home-page .page{padding:0;}
     a{color:inherit}
     button,input{font:inherit}
     button{
@@ -464,8 +466,12 @@ function renderScripts() {
   `;
 }
 
-function renderIndex(siteConfig = {}) {
+function renderFavicon(siteConfig = {}) {
   const logo = siteConfig.logo || siteConfig.site_logo || siteConfig.admin_logo || '';
+  return logo ? `<link rel="icon" href="${escapeHTML(logo)}">` : '';
+}
+
+function renderIndex(siteConfig = {}) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -473,18 +479,16 @@ function renderIndex(siteConfig = {}) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#16a36a">
 <title>CF-SURL</title>
+${renderFavicon(siteConfig)}
 <style>${getToolStyles()}</style>
 </head>
-<body>
+<body class="home-page">
 <div id="toast" class="toast"></div>
-<main class="page narrow" style="padding-top:12vh">
+<main class="page narrow">
   <section class="panel" style="padding:30px">
-    <div class="brand" style="margin-bottom:28px">
-      ${logo ? `<img class="brand-logo" src="${escapeHTML(logo)}" alt="Logo">` : ''}
-      <div class="brand-text">
-        <h1 class="title">CF-SURL</h1>
-        <div class="subtitle">极简短链接</div>
-      </div>
+    <div style="margin-bottom:28px">
+      <h1 class="title">CF-SURL</h1>
+      <div class="subtitle">极简短链接</div>
     </div>
     <div class="field">
       <label for="longUrl">目标 URL</label>
@@ -535,7 +539,6 @@ async function copyToClipboard(){
 }
 
 function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH, siteConfig = {}) {
-  const logo = siteConfig.logo || siteConfig.site_logo || siteConfig.admin_logo || '';
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -543,6 +546,7 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH, siteConfig = {})
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#16a36a">
 <title>CF-SURL 管理后台</title>
+${renderFavicon(siteConfig)}
 <style>${getToolStyles()}</style>
 </head>
 <body>
@@ -567,13 +571,9 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH, siteConfig = {})
       <div class="hint">只填写路径名称，不要输入 /。</div>
     </div>
     <div class="field">
-      <label>站点 Logo</label>
-      <input type="url" id="logo-input" value="${escapeHTML(logo)}" maxlength="2048" placeholder="https://example.com/logo.png" oninput="updateLogoPreview()">
-      <div class="site-logo-preview" id="logoPreview" style="display:none">
-        <img id="logoPreviewImg" alt="Logo">
-        <span id="logoPreviewText"></span>
-      </div>
-      <div class="hint">只需填写一个 Logo URL，首页和管理员后台同时生效。</div>
+      <label>浏览器标签页 Logo</label>
+      <input type="url" id="logo-input" value="${escapeHTML(siteConfig.logo || siteConfig.site_logo || siteConfig.admin_logo || '')}" maxlength="2048" placeholder="https://example.com/logo.png">
+      <div class="hint">只需填写一个 Logo URL，用于浏览器标签页图标，首页和管理员后台页面本身不会显示 Logo。</div>
     </div>
     <div class="modal-actions"><button class="secondary" onclick="closeSiteModal()">取消</button><button onclick="saveSiteSettings()">保存</button></div>
   </div>
@@ -596,7 +596,6 @@ function renderAdmin(adminUser, adminPath = DEFAULT_ADMIN_PATH, siteConfig = {})
   <div class="admin-shell">
     <header class="admin-header">
       <div class="brand">
-        ${logo ? `<img class="brand-logo" src="${escapeHTML(logo)}" alt="Logo">` : ''}
         <div class="brand-text">
           <h1 class="title">CF-SURL</h1>
           <div class="subtitle">短链接管理控制台</div>
@@ -669,17 +668,10 @@ async function saveSecurity(){
 }
 function openSiteModal(){
   document.getElementById('admin-path-input').value=${JSON.stringify(adminPath)};
-  document.getElementById('logo-input').value=${JSON.stringify(logo)};
-  updateLogoPreview();
+  document.getElementById('logo-input').value=${JSON.stringify(siteConfig.logo || siteConfig.site_logo || siteConfig.admin_logo || '')};
   document.getElementById('siteModal').style.display='flex'
 }
 function closeSiteModal(){document.getElementById('siteModal').style.display='none'}
-function updateLogoPreview(){
-  const value=document.getElementById('logo-input').value.trim(),box=document.getElementById('logoPreview'),img=document.getElementById('logoPreviewImg'),text=document.getElementById('logoPreviewText');
-  if(!value){box.style.display='none';return}
-  text.textContent=value;img.src=value;box.style.display='flex';
-  img.onerror=()=>{box.style.display='none'}
-}
 async function saveSiteSettings(){
   const value=document.getElementById('admin-path-input').value.trim();
   const logoValue=document.getElementById('logo-input').value.trim();
@@ -803,14 +795,12 @@ loadLinks();
 }
 
 function renderLoginPage(error = '', adminPath = DEFAULT_ADMIN_PATH, siteConfig = {}) {
-  const logo = siteConfig.logo || siteConfig.site_logo || siteConfig.admin_logo || '';
   return `<!DOCTYPE html>
 <html lang="zh-CN">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CF-SURL 管理登录</title><style>${getToolStyles()}</style></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CF-SURL 管理登录</title>${renderFavicon(siteConfig)}<style>${getToolStyles()}</style></head>
 <body>
 <main class="page narrow" style="padding-top:12vh">
   <section class="panel login-card">
-    ${logo ? `<div class="brand" style="justify-content:center;margin-bottom:20px"><img class="brand-logo" src="${escapeHTML(logo)}" alt="Logo"></div>` : ''}
     <h1 class="title" style="font-size:25px">CF-SURL</h1>
     <div class="subtitle">管理员登录</div>
     <form method="POST" action="${getAdminBasePath(adminPath)}/login">
@@ -825,10 +815,10 @@ function renderLoginPage(error = '', adminPath = DEFAULT_ADMIN_PATH, siteConfig 
 </html>`;
 }
 
-function render404() {
+function render404(siteConfig = {}) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CF-SURL</title><style>${getToolStyles()}</style></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CF-SURL</title>${renderFavicon(siteConfig)}<style>${getToolStyles()}</style></head>
 <body>
 <main class="page narrow" style="padding-top:15vh">
   <section class="panel" style="text-align:center;padding:42px 28px">
@@ -1065,14 +1055,14 @@ export default {
       if (path === "/") return new Response(renderIndex(kvConfig), { headers: htmlHeaders });
 
       const key = path.substring(1);
-      if (!key || key.indexOf("/") !== -1) return new Response(render404(), { status: 404, headers: htmlHeaders });
+      if (!key || key.indexOf("/") !== -1) return new Response(render404(kvConfig), { status: 404, headers: htmlHeaders });
 
       const value = await env.KV.get(key);
       if (value) {
         const location = requestURL.search ? value + requestURL.search : value;
         return Response.redirect(location, 302);
       }
-      return new Response(render404(), { status: 404, headers: htmlHeaders });
+      return new Response(render404(kvConfig), { status: 404, headers: htmlHeaders });
     }
 
     return new Response("Method Not Allowed", { status: 405 });
